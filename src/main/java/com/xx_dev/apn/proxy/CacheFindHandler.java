@@ -52,7 +52,7 @@ public class CacheFindHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger cacheLogger = Logger.getLogger("CACHE_LOGGER");
 
-    public static final String HANDLER_NAME = "apnproxy.cache.find";
+//    public static final String HANDLER_NAME = "apnproxy.cache.find";
 
     private boolean cacheFound = false;
 

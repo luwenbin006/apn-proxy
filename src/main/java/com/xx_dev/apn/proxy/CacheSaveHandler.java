@@ -43,7 +43,7 @@ public class CacheSaveHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(CacheSaveHandler.class);
 
-    public static final String HANDLER_NAME = "apnproxy.cache.save";
+//    public static final String HANDLER_NAME = "apnproxy.cache.save";
 
     private boolean caching = false;
 

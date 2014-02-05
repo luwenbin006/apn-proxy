@@ -39,8 +39,17 @@ public class ApnProxySchemaHandler extends ChannelInboundHandlerAdapter {
             HttpRequest httpRequest = (HttpRequest) msg;
 
             if (httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
-                ctx.pipeline().remove(CacheFindHandler.HANDLER_NAME);
-                ctx.pipeline().remove(ApnProxyForwardHandler.HANDLER_NAME);
+
+                ctx.pipeline().addLast(ApnProxyTunnelHandler.HANDLER_NAME, new ApnProxyTunnelHandler());
+
+            } else {
+
+//                ctx.pipeline().addLast(CacheFindHandler.HANDLER_NAME, new CacheFindHandler());
+
+                if (ctx.pipeline().get(ApnProxyForwardHandler.HANDLER_NAME) == null) {
+                    ctx.pipeline().addLast(ApnProxyForwardHandler.HANDLER_NAME, new ApnProxyForwardHandler());
+                }
+
             }
 
         }

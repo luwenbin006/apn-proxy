@@ -19,29 +19,6 @@
 <remote-rules>
     <!--
     <rule>
-        <remote-listen-type>3des</remote-listen-type>
-        <remote-3des-key></remote-3des-key>
-        <remote-host></remote-host>
-        <remote-port></remote-port>
-        <apply-list>
-            <original-host>google.com</original-host>
-            <original-host>twitter.com</original-host>
-            <original-host>facebook.com</original-host>
-        </apply-list>
-    </rule>
-    <rule>
-        <remote-listen-type>simple</remote-listen-type>
-        <remote-simple-key></remote-simple-key>
-        <remote-host></remote-host>
-        <remote-port></remote-port>
-        <apply-list>
-            <original-host>blogspot.com</original-host>
-            <original-host>godaddy.com</original-host>
-            <original-host>blogger.com</original-host>
-            <original-host>t.co</original-host>
-        </apply-list>
-    </rule>
-    <rule>
         <remote-listen-type>ssl</remote-listen-type>
         <remote-trust-store></remote-trust-store>
         <remote-trust-store-key></remote-trust-store-key>

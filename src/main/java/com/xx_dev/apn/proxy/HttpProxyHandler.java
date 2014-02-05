@@ -73,10 +73,9 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
             httpResponse.headers().set("Proxy-Connection", HttpHeaders.Values.KEEP_ALIVE);
         }
 
-        if (ho instanceof HttpContent) {
-            ((HttpContent) ho).retain();
-        }
-
+//        if (ho instanceof HttpContent) {
+//            ((HttpContent) ho).retain();
+//        }
 
         if (uaChannel.isActive()) {
             uaChannel.writeAndFlush(ho).addListener(new ChannelFutureListener() {
@@ -84,7 +83,7 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if (future.isSuccess()) {
                         ctx.read();
-                        ctx.fireChannelRead(msg);
+                        //ctx.fireChannelRead(msg);
                     } else {
                         ReferenceCountUtil.release(msg);
                         ctx.close();
