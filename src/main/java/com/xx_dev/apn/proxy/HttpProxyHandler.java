@@ -85,7 +85,7 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
                         ctx.read();
                         //ctx.fireChannelRead(msg);
                     } else {
-                        ReferenceCountUtil.release(msg);
+                        //ReferenceCountUtil.release(msg);
                         ctx.close();
                     }
                 }
