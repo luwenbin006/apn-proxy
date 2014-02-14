@@ -41,7 +41,7 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
         ChannelPipeline pipeline = channel.pipeline();
 
         pipeline.addLast("idlestate", new IdleStateHandler(0, 0, 3, TimeUnit.MINUTES));
-        pipeline.addLast("idlehandler", new IdleHandler());
+        pipeline.addLast("idlehandler", new ApnProxyIdleHandler());
 
         pipeline.addLast("datalog", new LoggingHandler("PRE_BYTE_LOGGER", LogLevel.DEBUG));
 

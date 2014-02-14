@@ -47,13 +47,13 @@ import java.util.Set;
 
 /**
  * @author xmx
- * @version $Id: com.xx_dev.apn.proxy.ApnProxyTunnelHandler 14-1-8 16:13 (xmx) Exp $
+ * @version $Id: com.xx_dev.apn.proxy.ApnProxyUserAgentTunnelHandler 14-1-8 16:13 (xmx) Exp $
  */
-public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
+public class ApnProxyUserAgentTunnelHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger logger = Logger.getLogger(ApnProxyTunnelHandler.class);
+    private static final Logger logger = Logger.getLogger(ApnProxyUserAgentTunnelHandler.class);
 
-    public static final String HANDLER_NAME = "apnproxy.tunnel";
+    public static final String HANDLER_NAME = "apnproxy.useragent.tunnel";
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -96,7 +96,7 @@ public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
                                 if (apnProxyRemote.isAppleyRemoteRule()) {
                                     ctx.pipeline().remove("codec");
                                     ctx.pipeline().remove(ApnProxyPreHandler.HANDLER_NAME);
-                                    ctx.pipeline().remove(ApnProxyTunnelHandler.HANDLER_NAME);
+                                    ctx.pipeline().remove(ApnProxyUserAgentTunnelHandler.HANDLER_NAME);
 
                                     // add relay handler
                                     ctx.pipeline().addLast(
@@ -132,7 +132,7 @@ public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
                                                     ctx.pipeline().remove("codec");
                                                     ctx.pipeline().remove(ApnProxyPreHandler.HANDLER_NAME);
                                                     ctx.pipeline().remove(
-                                                            ApnProxyTunnelHandler.HANDLER_NAME);
+                                                            ApnProxyUserAgentTunnelHandler.HANDLER_NAME);
 
                                                     // add relay handler
                                                     ctx.pipeline().addLast(

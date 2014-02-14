@@ -23,11 +23,11 @@ import org.apache.log4j.Logger;
 
 /**
  * @author xmx
- * @version $Id: com.xx_dev.apn.proxy.IdleHandler 14-1-8 16:13 (xmx) Exp $
+ * @version $Id: com.xx_dev.apn.proxy.ApnProxyIdleHandler 14-1-8 16:13 (xmx) Exp $
  */
-public class IdleHandler extends ChannelDuplexHandler {
+public class ApnProxyIdleHandler extends ChannelDuplexHandler {
 
-    private static Logger logger = Logger.getLogger(IdleHandler.class);
+    private static Logger logger = Logger.getLogger(ApnProxyIdleHandler.class);
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {

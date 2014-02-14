@@ -33,7 +33,7 @@ public class HttpServer {
         serverBootStrap.childOption(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT);
 
         try {
-            serverBootStrap.group(new NioEventLoopGroup(10), new NioEventLoopGroup(10)).channel(NioServerSocketChannel.class)
+            serverBootStrap.group(new NioEventLoopGroup(1), new NioEventLoopGroup(2)).channel(NioServerSocketChannel.class)
                     .localAddress(5000).childHandler(new HttpServerChannelInitializer());
             serverBootStrap.bind().sync().channel().closeFuture().sync();
         } catch (Exception e) {

@@ -81,6 +81,8 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                         + httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
             }
 
+            isPacRequest = false;
+
             // pac request
             if (StringUtils.equals(originalHost, ApnProxyConfig.getConfig().getPacHost())) {
                 isPacRequest = true;
@@ -140,10 +142,6 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
 
         } else {
             if (isPacRequest) {
-                if (msg instanceof LastHttpContent) {
-                    isPacRequest = false;
-                }
-
                 return false;
             }
         }

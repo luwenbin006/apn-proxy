@@ -16,7 +16,7 @@
 
 package com.xx_dev.apn.proxy;
 
-import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
+import com.xx_dev.apn.proxy.ApnProxyRemoteHandler.RemoteChannelInactiveCallback;
 import com.xx_dev.apn.proxy.config.ApnProxyListenType;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxySslRemote;
@@ -31,9 +31,9 @@ import javax.net.ssl.SSLEngine;
 
 /**
  * @author xmx
- * @version $Id: com.xx_dev.apn.proxy.HttpProxyChannelInitializer 14-1-8 16:13 (xmx) Exp $
+ * @version $Id: com.xx_dev.apn.proxy.ApnProxyRemoteChannelInitializer 14-1-8 16:13 (xmx) Exp $
  */
-public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChannel> {
+public class ApnProxyRemoteChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     private ApnProxyRemote apnProxyRemote;
 
@@ -41,9 +41,9 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
     private String remoteAddr;
     private RemoteChannelInactiveCallback remoteChannelInactiveCallback;
 
-    public HttpProxyChannelInitializer(ApnProxyRemote apnProxyRemote, Channel uaChannel,
-                                       String remtoeAddr,
-                                       RemoteChannelInactiveCallback remoteChannelInactiveCallback) {
+    public ApnProxyRemoteChannelInitializer(ApnProxyRemote apnProxyRemote, Channel uaChannel,
+                                            String remtoeAddr,
+                                            RemoteChannelInactiveCallback remoteChannelInactiveCallback) {
         this.apnProxyRemote = apnProxyRemote;
         this.uaChannel = uaChannel;
         this.remoteAddr = remtoeAddr;
@@ -66,9 +66,8 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
 
         pipeline.addLast("codec", new HttpClientCodec());
 
-        pipeline.addLast(HttpProxyHandler.HANDLER_NAME, new HttpProxyHandler(uaChannel, remoteAddr,
+        pipeline.addLast(ApnProxyRemoteHandler.HANDLER_NAME, new ApnProxyRemoteHandler(uaChannel, remoteAddr,
                 remoteChannelInactiveCallback));
 
-//        pipeline.addLast(CacheSaveHandler.HANDLER_NAME, new CacheSaveHandler());
     }
 }

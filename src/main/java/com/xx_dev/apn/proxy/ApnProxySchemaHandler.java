@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
  */
 public class ApnProxySchemaHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger logger = Logger.getLogger(ApnProxyForwardHandler.class);
+    private static final Logger logger = Logger.getLogger(ApnProxyUserAgentForwardHandler.class);
 
     public static final String HANDLER_NAME = "apnproxy.schema";
 
@@ -39,19 +39,17 @@ public class ApnProxySchemaHandler extends ChannelInboundHandlerAdapter {
             HttpRequest httpRequest = (HttpRequest) msg;
 
             if (httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
-
-                ctx.pipeline().addLast(ApnProxyTunnelHandler.HANDLER_NAME, new ApnProxyTunnelHandler());
-
-            } else {
-
-//                ctx.pipeline().addLast(CacheFindHandler.HANDLER_NAME, new CacheFindHandler());
-
-                if (ctx.pipeline().get(ApnProxyForwardHandler.HANDLER_NAME) == null) {
-                    ctx.pipeline().addLast(ApnProxyForwardHandler.HANDLER_NAME, new ApnProxyForwardHandler());
+                if (ctx.pipeline().get(ApnProxyUserAgentForwardHandler.HANDLER_NAME) != null) {
+                    ctx.pipeline().remove(ApnProxyUserAgentForwardHandler.HANDLER_NAME);
                 }
-
+                if (ctx.pipeline().get(ApnProxyUserAgentTunnelHandler.HANDLER_NAME) == null) {
+                    ctx.pipeline().addLast(ApnProxyUserAgentTunnelHandler.HANDLER_NAME, new ApnProxyUserAgentTunnelHandler());
+                }
+            } else {
+                if (ctx.pipeline().get(ApnProxyUserAgentForwardHandler.HANDLER_NAME) == null) {
+                    ctx.pipeline().addLast(ApnProxyUserAgentForwardHandler.HANDLER_NAME, new ApnProxyUserAgentForwardHandler());
+                }
             }
-
         }
 
         ctx.fireChannelRead(msg);

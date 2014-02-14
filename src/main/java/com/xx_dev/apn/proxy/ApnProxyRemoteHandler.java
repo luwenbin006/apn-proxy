@@ -17,27 +17,21 @@
 package com.xx_dev.apn.proxy;
 
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.HttpContent;
+import io.netty.channel.*;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.util.ReferenceCountUtil;
 import org.apache.log4j.Logger;
 
 /**
  * @author xmx
- * @version $Id: com.xx_dev.apn.proxy.HttpProxyHandler 14-1-8 16:13 (xmx) Exp $
+ * @version $Id: com.xx_dev.apn.proxy.ApnProxyRemoteHandler 14-1-8 16:13 (xmx) Exp $
  */
-public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
+public class ApnProxyRemoteHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger logger = Logger.getLogger(HttpProxyHandler.class);
+    private static final Logger logger = Logger.getLogger(ApnProxyRemoteHandler.class);
 
-    public static final String HANDLER_NAME = "apnproxy.proxy";
+    public static final String HANDLER_NAME = "apnproxy.proxy.remote";
 
     private Channel uaChannel;
 
@@ -45,8 +39,8 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
 
     private RemoteChannelInactiveCallback remoteChannelInactiveCallback;
 
-    public HttpProxyHandler(Channel uaChannel, String remoteAddr,
-                            RemoteChannelInactiveCallback remoteChannelInactiveCallback) {
+    public ApnProxyRemoteHandler(Channel uaChannel, String remoteAddr,
+                                 RemoteChannelInactiveCallback remoteChannelInactiveCallback) {
         this.uaChannel = uaChannel;
         this.remoteAddr = remoteAddr;
         this.remoteChannelInactiveCallback = remoteChannelInactiveCallback;
@@ -61,11 +55,13 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
     }
 
     public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Recive From: " + remoteAddr + ", " + msg);
+        }
+
 
         HttpObject ho = (HttpObject) msg;
-        if (logger.isDebugEnabled()) {
-            logger.debug("Recive From: " + remoteAddr + ", " + ho.getClass().getName());
-        }
+
 
         if (ho instanceof HttpResponse) {
             HttpResponse httpResponse = (HttpResponse) ho;
@@ -73,23 +69,22 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
             httpResponse.headers().set("Proxy-Connection", HttpHeaders.Values.KEEP_ALIVE);
         }
 
-//        if (ho instanceof HttpContent) {
-//            ((HttpContent) ho).retain();
-//        }
-
         if (uaChannel.isActive()) {
             uaChannel.writeAndFlush(ho).addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Recive From: " + remoteAddr + ", " +msg +", write to UA finished: " + future.isSuccess());
+                    }
                     if (future.isSuccess()) {
-                        ctx.read();
-                        //ctx.fireChannelRead(msg);
+                        ctx.channel().read();
                     } else {
-                        //ReferenceCountUtil.release(msg);
                         ctx.close();
                     }
                 }
             });
+        } else {
+            ctx.close();
         }
     }
 
@@ -99,12 +94,18 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
             logger.debug("Remote channel: " + remoteAddr + " inactive");
         }
 
-        uaChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                remoteChannelInactiveCallback.remoteChannelInactiveCallback(ctx, remoteAddr);
-            }
-        });
+        if (uaChannel.isActive()) {
+            uaChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    remoteChannelInactiveCallback.remoteChannelInactiveCallback(ctx, remoteAddr);
+                }
+            });
+        } else {
+            remoteChannelInactiveCallback.remoteChannelInactiveCallback(ctx, remoteAddr);
+        }
+
+
         ctx.fireChannelInactive();
 
     }

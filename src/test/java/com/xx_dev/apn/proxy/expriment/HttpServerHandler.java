@@ -45,19 +45,15 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
             String s = "1234567890";
 
-            DefaultHttpContent c1 = new DefaultHttpContent(Unpooled.copiedBuffer(s, CharsetUtil.UTF_8));
+            for (int i=0; i<100000; i++) {
+                DefaultHttpContent c1 = new DefaultHttpContent(Unpooled.copiedBuffer(s, CharsetUtil.UTF_8));
 
-            ctx.write(c1);
-
-            DefaultHttpContent c2 = new DefaultHttpContent(Unpooled.copiedBuffer(s, CharsetUtil.UTF_8));
-
-            ctx.write(c2);
+                ctx.writeAndFlush(c1);
+            }
 
             DefaultLastHttpContent c3 = new DefaultLastHttpContent();
 
-            ctx.write(c3);
-
-            ctx.flush();
+            ctx.writeAndFlush(c3);
         }
 
         ReferenceCountUtil.release(msg);
