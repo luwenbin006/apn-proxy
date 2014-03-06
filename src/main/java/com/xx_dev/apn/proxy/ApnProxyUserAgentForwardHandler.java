@@ -96,7 +96,10 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
                             logger.debug("Remote channel: " + inactiveRemoteAddr
                                     + " inactive, and flush end");
                         }
-                        uaChannel.close();
+                        if (StringUtils.equals(remoteAddr, inactiveRemoteAddr)) {
+                            uaChannel.close();
+                        }
+
                         remoteChannelMap.remove(inactiveRemoteAddr);
                     }
 

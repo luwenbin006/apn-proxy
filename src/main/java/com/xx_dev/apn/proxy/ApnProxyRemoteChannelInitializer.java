@@ -26,8 +26,10 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 
 import javax.net.ssl.SSLEngine;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author xmx
@@ -54,6 +56,9 @@ public class ApnProxyRemoteChannelInitializer extends ChannelInitializer<SocketC
     public void initChannel(SocketChannel channel) throws Exception {
 
         ChannelPipeline pipeline = channel.pipeline();
+
+        pipeline.addLast("idlestate", new IdleStateHandler(0, 0, 3, TimeUnit.MINUTES));
+        pipeline.addLast("idlehandler", new ApnProxyIdleHandler());
 
         if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.SSL) {
             ApnProxySslRemote sslRemote = (ApnProxySslRemote) apnProxyRemote;
