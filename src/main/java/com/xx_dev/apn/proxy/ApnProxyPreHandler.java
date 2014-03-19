@@ -155,16 +155,19 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
         sb.append("function FindProxyForURL(url, host){var PROXY = \"PROXY ")
                 .append(ApnProxyConfig.getConfig().getPacHost()).append(":")
                 .append(ApnProxyConfig.getConfig().getPort()).append("\";var DEFAULT = \"DIRECT\";");
+        sb.append("var domains = [");
 
         for (ApnProxyRemoteRule remoteRule : ApnProxyConfig.getConfig().getRemoteRuleList()) {
             for (String originalHost : remoteRule.getOriginalHostList()) {
-                if (StringUtils.isNotBlank(originalHost)) {
-                    sb.append("if(/^[\\w\\-]+:\\/+(?!\\/)(?:[^\\/]+\\.)?")
-                            .append(StringUtils.replace(originalHost, ".", "\\."))
-                            .append("/i.test(url)) return PROXY;");
-                }
+                sb.append("\"").append(originalHost).append("\",");
             }
         }
+
+        sb.deleteCharAt(sb.length()-1);
+
+        sb.append("];");
+
+        sb.append("for (var i = 0; i < domains.length; i++) {if (dnsDomainIs(host, domains[i])) {return PROXY};}");
 
         sb.append("return DEFAULT;}");
 
