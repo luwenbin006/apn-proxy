@@ -18,6 +18,7 @@ package com.xx_dev.apn.proxy;
 
 import com.xx_dev.apn.proxy.config.ApnProxyConfig;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -46,7 +47,7 @@ public class ApnProxyServer {
         }
 
         ServerBootstrap serverBootStrap = new ServerBootstrap();
-        serverBootStrap.childOption(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT);
+        serverBootStrap.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 
         bossGroup = new NioEventLoopGroup(bossThreadCount);
         workerGroup = new NioEventLoopGroup(workerThreadCount);

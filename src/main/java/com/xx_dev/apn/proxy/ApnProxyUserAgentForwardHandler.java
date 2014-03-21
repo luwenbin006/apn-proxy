@@ -23,6 +23,7 @@ import com.xx_dev.apn.proxy.utils.Base64;
 import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 import com.xx_dev.apn.proxy.utils.HttpErrorUtil;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -115,7 +116,7 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
                         .group(uaChannel.eventLoop())
                         .channel(NioSocketChannel.class)
                         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
-                        .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
+                        .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                         .option(ChannelOption.AUTO_READ, true)
                         .handler(
                                 new ApnProxyRemoteChannelInitializer(apnProxyRemote, uaChannel, remoteAddr, remoteChannelInactiveCallback));

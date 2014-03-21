@@ -21,6 +21,7 @@ import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemoteChooser;
 import com.xx_dev.apn.proxy.utils.Base64;
 import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -74,7 +75,7 @@ public class ApnProxyUserAgentTunnelHandler extends ChannelInboundHandlerAdapter
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(uaChannel.eventLoop()).channel(NioSocketChannel.class)
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
-                    .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
+                    .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                     .option(ChannelOption.AUTO_READ, false)
                     .handler(new ApnProxyTunnelChannelInitializer(apnProxyRemote, uaChannel));
 
