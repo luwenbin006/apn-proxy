@@ -16,8 +16,6 @@
 
 package com.xx_dev.apn.proxy;
 
-import io.netty.util.AttributeKey;
-
 /**
  * @author xmx
  * @version $Id: com.xx_dev.apn.proxy.ApnProxyConstants 14-1-8 16:13 (xmx) Exp $

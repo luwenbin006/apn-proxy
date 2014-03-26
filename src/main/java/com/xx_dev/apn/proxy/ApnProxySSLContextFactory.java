@@ -19,11 +19,7 @@ package com.xx_dev.apn.proxy;
 import com.xx_dev.apn.proxy.config.ApnProxyConfig;
 import org.apache.log4j.Logger;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.*;
 import java.io.FileInputStream;
 import java.security.KeyStore;
 

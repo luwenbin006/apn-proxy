@@ -25,13 +25,7 @@ import com.xx_dev.apn.proxy.utils.HttpErrorUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
-import io.netty.buffer.UnpooledByteBufAllocator;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelOption;
+import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.util.ReferenceCountUtil;
@@ -40,11 +34,7 @@ import org.apache.log4j.Logger;
 
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author xmx
@@ -243,10 +233,10 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
 
         Set<String> headerNames = httpRequest.headers().names();
         for (String headerName : headerNames) {
-            // if (StringUtils.equalsIgnoreCase(headerName, "Proxy-Connection")) {
-            // continue;
-            // }
-            //
+            if (StringUtils.equalsIgnoreCase(headerName, "Proxy-Connection")) {
+                continue;
+            }
+
             // if (StringUtils.equalsIgnoreCase(headerName, HttpHeaders.Names.CONNECTION)) {
             // continue;
             // }

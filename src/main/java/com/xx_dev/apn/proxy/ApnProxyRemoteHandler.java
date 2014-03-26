@@ -74,7 +74,7 @@ public class ApnProxyRemoteHandler extends ChannelInboundHandlerAdapter {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Recive From: " + remoteAddr + ", " +msg +", write to UA finished: " + future.isSuccess());
+                        logger.debug("Recive From: " + remoteAddr + ", " + msg + ", write to UA finished: " + future.isSuccess());
                     }
                     if (future.isSuccess()) {
                         ctx.channel().read();
