@@ -237,6 +237,10 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
                 continue;
             }
 
+            if (StringUtils.equalsIgnoreCase(headerName, "Pragma")) {
+                continue;
+            }
+
             // if (StringUtils.equalsIgnoreCase(headerName, HttpHeaders.Names.CONNECTION)) {
             // continue;
             // }
