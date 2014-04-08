@@ -214,18 +214,7 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
         remoteChannelMap.remove(inactiveRemoteAddr);
 
         if (uaChannelCtx.channel().isActive()) {
-            uaChannelCtx.channel().writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    if (StringUtils.equals(remoteAddr, inactiveRemoteAddr)) {
-                        uaChannelCtx.close();
-                    }
-                }
-            });
-        } else {
-            if (StringUtils.equals(remoteAddr, inactiveRemoteAddr)) {
-                uaChannelCtx.close();
-            }
+            uaChannelCtx.channel().writeAndFlush(Unpooled.EMPTY_BUFFER);
         }
 
 
