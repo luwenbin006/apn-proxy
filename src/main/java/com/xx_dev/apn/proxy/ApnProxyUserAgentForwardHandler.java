@@ -91,7 +91,7 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
                         .channel(NioSocketChannel.class)
                         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
                         .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                        .option(ChannelOption.AUTO_READ, true)
+                        .option(ChannelOption.AUTO_READ, false)
                         .handler(
                                 new ApnProxyRemoteChannelInitializer(apnProxyRemote, uaChannelCtx, this));
 
@@ -113,14 +113,7 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
                     public void operationComplete(ChannelFuture future) throws Exception {
                         if (future.isSuccess()) {
                             future.channel().write(
-                                    constructRequestForProxy((HttpRequest) msg, apnProxyRemote)).addListener(new ChannelFutureListener() {
-                                @Override
-                                public void operationComplete(ChannelFuture future) throws Exception {
-                                    if (future.isSuccess()) {
-                                        future.channel().read();
-                                    }
-                                }
-                            });
+                                    constructRequestForProxy((HttpRequest) msg, apnProxyRemote));
 
                             for (HttpContent hc : httpContentBuffer) {
                                 future.channel().writeAndFlush(hc);
