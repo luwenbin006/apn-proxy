@@ -35,6 +35,10 @@ public class ApnProxySchemaHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, final Object msg) throws Exception {
 
+        if (logger.isDebugEnabled()) {
+            logger.debug("UA msg: " + msg + ", " + ctx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
+        }
+
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
 

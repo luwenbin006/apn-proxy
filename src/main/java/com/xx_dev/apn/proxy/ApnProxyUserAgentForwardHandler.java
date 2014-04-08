@@ -113,7 +113,14 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
                     public void operationComplete(ChannelFuture future) throws Exception {
                         if (future.isSuccess()) {
                             future.channel().write(
-                                    constructRequestForProxy((HttpRequest) msg, apnProxyRemote));
+                                    constructRequestForProxy((HttpRequest) msg, apnProxyRemote)).addListener(new ChannelFutureListener() {
+                                @Override
+                                public void operationComplete(ChannelFuture future) throws Exception {
+                                    if (future.isSuccess()) {
+                                        future.channel().read();
+                                    }
+                                }
+                            });
 
                             for (HttpContent hc : httpContentBuffer) {
                                 future.channel().writeAndFlush(hc);

@@ -53,7 +53,7 @@ public class ApnProxyRemoteHandler extends ChannelInboundHandlerAdapter {
 
     public void channelRead(final ChannelHandlerContext remoteChannelCtx, final Object msg) throws Exception {
         if (logger.isDebugEnabled()) {
-            logger.debug("Recive msg: " + msg + ", " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
+            logger.debug("Remote msg: " + msg + ", " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
         }
 
 
