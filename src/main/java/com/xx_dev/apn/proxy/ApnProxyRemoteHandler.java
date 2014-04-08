@@ -73,7 +73,7 @@ public class ApnProxyRemoteHandler extends ChannelInboundHandlerAdapter {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Write to UA finished: " + future.isSuccess() +", " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
                     }
-                    if (!future.isSuccess()) {
+                    if (future.isSuccess()) {
                         remoteChannelCtx.channel().read();
                         if (logger.isDebugEnabled()) {
                             logger.debug("Fire read again" +", " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));

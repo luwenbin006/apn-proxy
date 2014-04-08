@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
  */
 public class ApnProxySchemaHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger logger = Logger.getLogger(ApnProxyUserAgentForwardHandler.class);
+    private static final Logger logger = Logger.getLogger(ApnProxySchemaHandler.class);
 
     public static final String HANDLER_NAME = "apnproxy.schema";
 
