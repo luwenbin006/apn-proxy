@@ -21,6 +21,7 @@ import com.xx_dev.apn.proxy.config.ApnProxyListenType;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxySslRemote;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -39,16 +40,13 @@ public class ApnProxyRemoteChannelInitializer extends ChannelInitializer<SocketC
 
     private ApnProxyRemote apnProxyRemote;
 
-    private Channel uaChannel;
-    private String remoteAddr;
+    private ChannelHandlerContext uaChannelCtx;
     private RemoteChannelInactiveCallback remoteChannelInactiveCallback;
 
-    public ApnProxyRemoteChannelInitializer(ApnProxyRemote apnProxyRemote, Channel uaChannel,
-                                            String remtoeAddr,
+    public ApnProxyRemoteChannelInitializer(ApnProxyRemote apnProxyRemote, ChannelHandlerContext uaChannelCtx,
                                             RemoteChannelInactiveCallback remoteChannelInactiveCallback) {
         this.apnProxyRemote = apnProxyRemote;
-        this.uaChannel = uaChannel;
-        this.remoteAddr = remtoeAddr;
+        this.uaChannelCtx = uaChannelCtx;
         this.remoteChannelInactiveCallback = remoteChannelInactiveCallback;
     }
 
@@ -71,7 +69,7 @@ public class ApnProxyRemoteChannelInitializer extends ChannelInitializer<SocketC
 
         pipeline.addLast("codec", new HttpClientCodec());
 
-        pipeline.addLast(ApnProxyRemoteHandler.HANDLER_NAME, new ApnProxyRemoteHandler(uaChannel, remoteAddr,
+        pipeline.addLast(ApnProxyRemoteHandler.HANDLER_NAME, new ApnProxyRemoteHandler(uaChannelCtx,
                 remoteChannelInactiveCallback));
 
     }

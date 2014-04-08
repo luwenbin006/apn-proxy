@@ -33,30 +33,27 @@ public class ApnProxyRemoteHandler extends ChannelInboundHandlerAdapter {
 
     public static final String HANDLER_NAME = "apnproxy.proxy.remote";
 
-    private Channel uaChannel;
-
-    private String remoteAddr;
+    private ChannelHandlerContext uaChannelCtx;
 
     private RemoteChannelInactiveCallback remoteChannelInactiveCallback;
 
-    public ApnProxyRemoteHandler(Channel uaChannel, String remoteAddr,
+    public ApnProxyRemoteHandler(ChannelHandlerContext uaChannelCtx,
                                  RemoteChannelInactiveCallback remoteChannelInactiveCallback) {
-        this.uaChannel = uaChannel;
-        this.remoteAddr = remoteAddr;
+        this.uaChannelCtx = uaChannelCtx;
         this.remoteChannelInactiveCallback = remoteChannelInactiveCallback;
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext remoteChannelCtx) throws Exception {
         if (logger.isDebugEnabled()) {
-            logger.debug("Remote channel: " + remoteAddr + " active");
+            logger.debug("Remote channel active, " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
         }
-        ctx.read();
+        remoteChannelCtx.read();
     }
 
-    public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
+    public void channelRead(final ChannelHandlerContext remoteChannelCtx, final Object msg) throws Exception {
         if (logger.isDebugEnabled()) {
-            logger.debug("Recive From: " + remoteAddr + ", " + msg);
+            logger.debug("Recive msg: " + msg + ", " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
         }
 
 
@@ -69,55 +66,47 @@ public class ApnProxyRemoteHandler extends ChannelInboundHandlerAdapter {
             httpResponse.headers().set("Proxy-Connection", HttpHeaders.Values.KEEP_ALIVE);
         }
 
-        if (uaChannel.isActive()) {
-            uaChannel.writeAndFlush(ho).addListener(new ChannelFutureListener() {
+        if (uaChannelCtx.channel().isActive()) {
+            uaChannelCtx.writeAndFlush(ho).addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Recive From: " + remoteAddr + ", " + msg + ", write to UA finished: " + future.isSuccess());
+                        logger.debug("Write to UA finished: " + future.isSuccess() +", " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
                     }
                     if (future.isSuccess()) {
-                        ctx.channel().read();
+                        remoteChannelCtx.channel().read();
                     } else {
-                        ctx.close();
+                        remoteChannelCtx.close();
                     }
                 }
             });
         } else {
-            ctx.close();
+            remoteChannelCtx.close();
         }
     }
 
     @Override
-    public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(final ChannelHandlerContext remoteChannelCtx) throws Exception {
         if (logger.isDebugEnabled()) {
-            logger.debug("Remote channel: " + remoteAddr + " inactive");
+            logger.debug("Remote channel inactive, " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
         }
 
-        if (uaChannel.isActive()) {
-            uaChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    remoteChannelInactiveCallback.remoteChannelInactiveCallback(ctx, remoteAddr);
-                }
-            });
-        } else {
-            remoteChannelInactiveCallback.remoteChannelInactiveCallback(ctx, remoteAddr);
-        }
+        final String remoteAddr = uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY).get().getRemoteAddr();
 
+        remoteChannelInactiveCallback.remoteChannelInactive(uaChannelCtx, remoteAddr);
 
-        ctx.fireChannelInactive();
+        remoteChannelCtx.fireChannelInactive();
 
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error(cause.getMessage(), cause);
-        ctx.close();
+    public void exceptionCaught(ChannelHandlerContext remoteChannelCtx, Throwable cause) throws Exception {
+        logger.error(cause.getMessage() + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY), cause);
+        remoteChannelCtx.close();
     }
 
     public interface RemoteChannelInactiveCallback {
-        public void remoteChannelInactiveCallback(ChannelHandlerContext remoteChannelCtx,
+        public void remoteChannelInactive(ChannelHandlerContext uaChannelCtx,
                                                   String remoeAddr) throws Exception;
     }
 

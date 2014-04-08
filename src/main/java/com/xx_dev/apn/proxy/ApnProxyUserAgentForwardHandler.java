@@ -40,7 +40,7 @@ import java.util.*;
  * @author xmx
  * @version $Id: com.xx_dev.apn.proxy.ApnProxyUserAgentForwardHandler 14-1-8 16:13 (xmx) Exp $
  */
-public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapter {
+public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapter implements RemoteChannelInactiveCallback{
 
     private static final Logger logger = Logger.getLogger(ApnProxyUserAgentForwardHandler.class);
 
@@ -53,9 +53,9 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
     private List<HttpContent> httpContentBuffer = new ArrayList<HttpContent>();
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, final Object msg) throws Exception {
+    public void channelRead(final ChannelHandlerContext uaChannelCtx, final Object msg) throws Exception {
 
-        final Channel uaChannel = ctx.channel();
+        final Channel uaChannel = uaChannelCtx.channel();
 
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
@@ -68,37 +68,21 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
                     originalHost, originalPort);
             remoteAddr = apnProxyRemote.getRemote();
 
+            uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY).set(
+                    ApnProxyConnectionAttribute.build(uaChannelCtx.channel().remoteAddress().toString(),
+                            originalHost, originalPort, remoteAddr));
+
             Channel remoteChannel = remoteChannelMap.get(remoteAddr);
 
             if (remoteChannel != null && remoteChannel.isActive()) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Use old remote channel to: " + remoteAddr + " for: "
-                            + originalHost + ":" + originalPort);
+                    logger.debug("Use old remote channel : " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
                 }
                 HttpRequest request = constructRequestForProxy(httpRequest, apnProxyRemote);
                 remoteChannel.writeAndFlush(request);
             } else {
-                RemoteChannelInactiveCallback remoteChannelInactiveCallback = new RemoteChannelInactiveCallback() {
-                    @Override
-                    public void remoteChannelInactiveCallback(ChannelHandlerContext remoteChannelCtx,
-                                                              String inactiveRemoteAddr)
-                            throws Exception {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Remote channel: " + inactiveRemoteAddr
-                                    + " inactive, and flush end");
-                        }
-                        if (StringUtils.equals(remoteAddr, inactiveRemoteAddr)) {
-                            uaChannel.close();
-                        }
-
-                        remoteChannelMap.remove(inactiveRemoteAddr);
-                    }
-
-                };
-
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Create new remote channel to: " + remoteAddr + " for: "
-                            + originalHost + ":" + originalPort);
+                    logger.debug("Create new remote channel: " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
                 }
 
                 Bootstrap bootstrap = new Bootstrap();
@@ -109,7 +93,7 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
                         .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                         .option(ChannelOption.AUTO_READ, true)
                         .handler(
-                                new ApnProxyRemoteChannelInitializer(apnProxyRemote, uaChannel, remoteAddr, remoteChannelInactiveCallback));
+                                new ApnProxyRemoteChannelInitializer(apnProxyRemote, uaChannelCtx, this));
 
                 // set local address
                 if (StringUtils.isNotBlank(ApnProxyLocalAddressChooser.choose(apnProxyRemote
@@ -197,9 +181,9 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext uaChannelCtx) throws Exception {
         if (logger.isDebugEnabled()) {
-            logger.debug("UA channel: " + " inactive");
+            logger.debug("UA channel: inactive" + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
         }
         for (Map.Entry<String, Channel> entry : remoteChannelMap.entrySet()) {
             final Channel remoteChannel = entry.getValue();
@@ -214,9 +198,38 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error(cause.getMessage(), cause);
-        ctx.close();
+    public void exceptionCaught(ChannelHandlerContext uaChannelCtx, Throwable cause) throws Exception {
+        logger.error(cause.getMessage() + " " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY), cause);
+        uaChannelCtx.close();
+    }
+
+    @Override
+    public void remoteChannelInactive(final ChannelHandlerContext uaChannelCtx,
+                                              final String inactiveRemoteAddr)
+            throws Exception {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Remote channel inactive, and flush end: " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
+        }
+
+        remoteChannelMap.remove(inactiveRemoteAddr);
+
+        if (uaChannelCtx.channel().isActive()) {
+            uaChannelCtx.channel().writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    if (StringUtils.equals(remoteAddr, inactiveRemoteAddr)) {
+                        uaChannelCtx.close();
+                    }
+                }
+            });
+        } else {
+            if (StringUtils.equals(remoteAddr, inactiveRemoteAddr)) {
+                uaChannelCtx.close();
+            }
+        }
+
+
+
     }
 
     private HttpRequest constructRequestForProxy(HttpRequest httpRequest,
