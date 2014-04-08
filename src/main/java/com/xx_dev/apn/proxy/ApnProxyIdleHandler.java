@@ -34,7 +34,7 @@ public class ApnProxyIdleHandler extends ChannelDuplexHandler {
 
         if (evt instanceof IdleStateEvent) {
             if (logger.isDebugEnabled()) {
-                logger.debug("idle event fired!");
+                logger.debug("idle event fired! " +  ctx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
             }
 
             ctx.channel().close();
