@@ -37,6 +37,8 @@ public class ApnProxyRemoteHandler extends ChannelInboundHandlerAdapter {
 
     private RemoteChannelInactiveCallback remoteChannelInactiveCallback;
 
+    private int remainMsgCount = 0;
+
     public ApnProxyRemoteHandler(ChannelHandlerContext uaChannelCtx,
                                  RemoteChannelInactiveCallback remoteChannelInactiveCallback) {
         this.uaChannelCtx = uaChannelCtx;
@@ -54,6 +56,12 @@ public class ApnProxyRemoteHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(final ChannelHandlerContext remoteChannelCtx, final Object msg) throws Exception {
         if (logger.isDebugEnabled()) {
             logger.debug("Remote msg: " + msg + ", " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
+        }
+
+        remainMsgCount++;
+
+        if (remainMsgCount <= 5) {
+            remoteChannelCtx.read();
         }
 
 
@@ -74,7 +82,8 @@ public class ApnProxyRemoteHandler extends ChannelInboundHandlerAdapter {
                         logger.debug("Write to UA finished: " + future.isSuccess() +", " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
                     }
                     if (future.isSuccess()) {
-                        remoteChannelCtx.channel().read();
+                        remainMsgCount --;
+                        remoteChannelCtx.read();
                         if (logger.isDebugEnabled()) {
                             logger.debug("Fire read again" +", " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
                         }
