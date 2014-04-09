@@ -18,10 +18,9 @@ package com.xx_dev.apn.proxy;
 
 import com.xx_dev.apn.proxy.ApnProxyRemoteHandler.RemoteChannelInactiveCallback;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
-import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemoteChooser;
 import com.xx_dev.apn.proxy.utils.Base64;
-import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 import com.xx_dev.apn.proxy.utils.HttpErrorUtil;
+import com.xx_dev.apn.proxy.utils.LoggerUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
@@ -40,13 +39,11 @@ import java.util.*;
  * @author xmx
  * @version $Id: com.xx_dev.apn.proxy.ApnProxyUserAgentForwardHandler 14-1-8 16:13 (xmx) Exp $
  */
-public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapter implements RemoteChannelInactiveCallback{
+public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapter implements RemoteChannelInactiveCallback {
 
     private static final Logger logger = Logger.getLogger(ApnProxyUserAgentForwardHandler.class);
 
     public static final String HANDLER_NAME = "apnproxy.useragent.forward";
-
-    private String remoteAddr;
 
     private Map<String, Channel> remoteChannelMap = new HashMap<String, Channel>();
 
@@ -57,33 +54,20 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
 
         final Channel uaChannel = uaChannelCtx.channel();
 
+        final ApnProxyRemote apnProxyRemote = uaChannel
+                .attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY).get().getRemote();
+
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
 
-            String originalHostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
-            final String originalHost = HostNamePortUtil.getHostName(originalHostHeader);
-            final int originalPort = HostNamePortUtil.getPort(originalHostHeader, 80);
-
-            final ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser.chooseRemoteAddr(
-                    originalHost, originalPort);
-            remoteAddr = apnProxyRemote.getRemote();
-
-            uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY).set(
-                    ApnProxyConnectionAttribute.build(uaChannelCtx.channel().remoteAddress().toString(),
-                            originalHost, originalPort, remoteAddr));
-
-            Channel remoteChannel = remoteChannelMap.get(remoteAddr);
+            Channel remoteChannel = remoteChannelMap.get(apnProxyRemote.getRemoteAddr());
 
             if (remoteChannel != null && remoteChannel.isActive()) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Use old remote channel : " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
-                }
+                LoggerUtil.debug(logger, uaChannel.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY), "Use old remote channel");
                 HttpRequest request = constructRequestForProxy(httpRequest, apnProxyRemote);
                 remoteChannel.writeAndFlush(request);
             } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Create new remote channel: " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
-                }
+                LoggerUtil.debug(logger, uaChannel.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY), "Create new remote channel");
 
                 Bootstrap bootstrap = new Bootstrap();
                 bootstrap
@@ -93,7 +77,7 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
                         .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                         .option(ChannelOption.AUTO_READ, false)
                         .handler(
-                                new ApnProxyRemoteChannelInitializer(apnProxyRemote, uaChannelCtx, this));
+                                new ApnProxyRemoteChannelInitializer(uaChannel, this));
 
                 // set local address
                 if (StringUtils.isNotBlank(ApnProxyLocalAddressChooser.choose(apnProxyRemote
@@ -106,7 +90,7 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
                         apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort());
 
                 remoteChannel = remoteConnectFuture.channel();
-                remoteChannelMap.put(remoteAddr, remoteChannel);
+                remoteChannelMap.put(apnProxyRemote.getRemoteAddr(), remoteChannel);
 
                 remoteConnectFuture.addListener(new ChannelFutureListener() {
                     @Override
@@ -134,9 +118,13 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
                             }
                             httpContentBuffer.clear();
                         } else {
-                            String errorMsg = "remote connect to " + remoteAddr + " fail";
-                            logger.error(errorMsg);
+                            logger.error("Remote connect fail, " + uaChannel
+                                    .attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
+
+                            LoggerUtil.error(logger, uaChannel.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY), "Create new remote channel");
+
                             // send error response
+                            String errorMsg = "remote connect to " + uaChannel.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY).get().getRemote().getRemoteAddr() + " fail";
                             HttpMessage errorResponseMsg = HttpErrorUtil.buildHttpErrorMessage(
                                     HttpResponseStatus.INTERNAL_SERVER_ERROR, errorMsg);
                             uaChannel.writeAndFlush(errorResponseMsg);
@@ -150,7 +138,7 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
             }
             ReferenceCountUtil.release(msg);
         } else {
-            Channel remoteChannel = remoteChannelMap.get(remoteAddr);
+            Channel remoteChannel = remoteChannelMap.get(apnProxyRemote.getRemoteAddr());
 
             HttpContent hc = ((HttpContent) msg);
             //hc.retain();
@@ -185,6 +173,8 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
         if (logger.isDebugEnabled()) {
             logger.debug("UA channel: inactive" + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
         }
+        LoggerUtil.debug(logger, uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY), "UA channel inactive");
+
         for (Map.Entry<String, Channel> entry : remoteChannelMap.entrySet()) {
             final Channel remoteChannel = entry.getValue();
             remoteChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(
@@ -204,19 +194,15 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
     }
 
     @Override
-    public void remoteChannelInactive(final ChannelHandlerContext uaChannelCtx,
-                                              final String inactiveRemoteAddr)
+    public void remoteChannelInactive(final Channel uaChannel, String inactiveRemoteAddr)
             throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Remote channel inactive, and flush end: " + uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
-        }
+        LoggerUtil.debug(logger, uaChannel.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY), "Remote channel inactive, and flush end");
 
         remoteChannelMap.remove(inactiveRemoteAddr);
 
-        if (uaChannelCtx.channel().isActive()) {
-            uaChannelCtx.channel().writeAndFlush(Unpooled.EMPTY_BUFFER);
+        if (uaChannel.isActive()) {
+            uaChannel.writeAndFlush(Unpooled.EMPTY_BUFFER);
         }
-
 
 
     }

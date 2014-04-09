@@ -39,7 +39,7 @@ public class ApnProxyRemoteChooser {
         ApnProxyRemoteRule remoteRule = getApplyRemoteRule(originalHost);
         if (remoteRule != null) {
             if (remoteRule.getRemoteListenType() == ApnProxyListenType.SSL) {
-                ApnProxySslRemote apSslRemote = new ApnProxySslRemote();
+                ApnProxyRemote apSslRemote = new ApnProxyRemote();
                 apSslRemote.setAppleyRemoteRule(true);
                 apSslRemote.setRemoteListenType(ApnProxyListenType.SSL);
 
@@ -47,7 +47,7 @@ public class ApnProxyRemoteChooser {
             }
 
             if (remoteRule.getRemoteListenType() == ApnProxyListenType.PLAIN) {
-                ApnProxyPlainRemote apPlainRemote = new ApnProxyPlainRemote();
+                ApnProxyRemote apPlainRemote = new ApnProxyRemote();
                 apPlainRemote.setAppleyRemoteRule(true);
                 apPlainRemote.setRemoteListenType(ApnProxyListenType.PLAIN);
 
@@ -59,7 +59,7 @@ public class ApnProxyRemoteChooser {
             apRemote.setProxyUserName(remoteRule.getProxyUserName());
             apRemote.setProxyPassword(remoteRule.getProxyPassword());
         } else {
-            apRemote = new ApnProxyPlainRemote();
+            apRemote = new ApnProxyRemote();
             apRemote.setAppleyRemoteRule(false);
             apRemote.setRemoteHost(originalHost);
             apRemote.setRemotePort(originalPort);
@@ -68,7 +68,7 @@ public class ApnProxyRemoteChooser {
 
         if (remoteChooseLogger.isInfoEnabled()) {
             remoteChooseLogger.info("Original host: " + originalHost + ", Original port: "
-                    + originalPort + ", Remote: " + apRemote.getRemote()
+                    + originalPort + ", Remote: " + apRemote.getRemoteAddr()
                     + ", Remote type: " + apRemote.getRemoteListenType());
         }
 

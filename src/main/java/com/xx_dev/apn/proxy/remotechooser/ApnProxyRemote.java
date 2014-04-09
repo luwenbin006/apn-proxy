@@ -22,7 +22,7 @@ import com.xx_dev.apn.proxy.config.ApnProxyListenType;
  * @author xmx
  * @version $Id: com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote 14-1-8 16:13 (xmx) Exp $
  */
-public abstract class ApnProxyRemote {
+public class ApnProxyRemote {
     private String remoteHost;
     private int remotePort;
 
@@ -57,7 +57,7 @@ public abstract class ApnProxyRemote {
         this.isAppleyRemoteRule = isAppleyRemoteRule;
     }
 
-    public final String getRemote() {
+    public final String getRemoteAddr() {
         return this.remoteHost + ":" + this.remotePort;
     }
 
@@ -83,5 +83,9 @@ public abstract class ApnProxyRemote {
 
     public void setProxyPassword(String proxyPassword) {
         this.proxyPassword = proxyPassword;
+    }
+
+    public String toString() {
+        return this.getRemoteAddr();
     }
 }

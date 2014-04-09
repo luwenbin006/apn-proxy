@@ -16,6 +16,11 @@
 
 package com.xx_dev.apn.proxy;
 
+import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
+import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemoteChooser;
+import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
+import com.xx_dev.apn.proxy.utils.LoggerUtil;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpMethod;
@@ -33,29 +38,42 @@ public class ApnProxySchemaHandler extends ChannelInboundHandlerAdapter {
     public static final String HANDLER_NAME = "apnproxy.schema";
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, final Object msg) throws Exception {
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("UA msg: " + msg + ", " + ctx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
-        }
+    public void channelRead(ChannelHandlerContext uaChannelCtx, final Object msg) throws Exception {
 
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
 
+            String originalHost = HostNamePortUtil.getHostName(httpRequest);
+            int originalPort = HostNamePortUtil.getPort(httpRequest);
+
+            ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser.chooseRemoteAddr(
+                    originalHost, originalPort);
+
+            Channel uaChannel = uaChannelCtx.channel();
+
+            uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY).set(
+                    ApnProxyConnectionAttribute.build(uaChannelCtx.channel().remoteAddress().toString(),
+                            originalHost, originalPort, apnProxyRemote));
+            uaChannel.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY).set(
+                    ApnProxyConnectionAttribute.build(uaChannelCtx.channel().remoteAddress().toString(),
+                            originalHost, originalPort, apnProxyRemote));
+
             if (httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
-                if (ctx.pipeline().get(ApnProxyUserAgentForwardHandler.HANDLER_NAME) != null) {
-                    ctx.pipeline().remove(ApnProxyUserAgentForwardHandler.HANDLER_NAME);
+                if (uaChannelCtx.pipeline().get(ApnProxyUserAgentForwardHandler.HANDLER_NAME) != null) {
+                    uaChannelCtx.pipeline().remove(ApnProxyUserAgentForwardHandler.HANDLER_NAME);
                 }
-                if (ctx.pipeline().get(ApnProxyUserAgentTunnelHandler.HANDLER_NAME) == null) {
-                    ctx.pipeline().addLast(ApnProxyUserAgentTunnelHandler.HANDLER_NAME, new ApnProxyUserAgentTunnelHandler());
+                if (uaChannelCtx.pipeline().get(ApnProxyUserAgentTunnelHandler.HANDLER_NAME) == null) {
+                    uaChannelCtx.pipeline().addLast(ApnProxyUserAgentTunnelHandler.HANDLER_NAME, new ApnProxyUserAgentTunnelHandler());
                 }
             } else {
-                if (ctx.pipeline().get(ApnProxyUserAgentForwardHandler.HANDLER_NAME) == null) {
-                    ctx.pipeline().addLast(ApnProxyUserAgentForwardHandler.HANDLER_NAME, new ApnProxyUserAgentForwardHandler());
+                if (uaChannelCtx.pipeline().get(ApnProxyUserAgentForwardHandler.HANDLER_NAME) == null) {
+                    uaChannelCtx.pipeline().addLast(ApnProxyUserAgentForwardHandler.HANDLER_NAME, new ApnProxyUserAgentForwardHandler());
                 }
             }
         }
 
-        ctx.fireChannelRead(msg);
+        LoggerUtil.debug(logger, uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY), "UA msg", msg);
+
+        uaChannelCtx.fireChannelRead(msg);
     }
 }

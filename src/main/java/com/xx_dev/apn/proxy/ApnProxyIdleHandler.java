@@ -16,6 +16,7 @@
 
 package com.xx_dev.apn.proxy;
 
+import com.xx_dev.apn.proxy.utils.LoggerUtil;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -33,9 +34,7 @@ public class ApnProxyIdleHandler extends ChannelDuplexHandler {
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
 
         if (evt instanceof IdleStateEvent) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("idle event fired! " +  ctx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
-            }
+            LoggerUtil.debug(logger, ctx.channel().attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY), "idle event fired!");
 
             ctx.channel().close();
         }

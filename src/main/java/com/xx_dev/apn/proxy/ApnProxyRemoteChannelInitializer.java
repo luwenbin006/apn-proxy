@@ -19,9 +19,7 @@ package com.xx_dev.apn.proxy;
 import com.xx_dev.apn.proxy.ApnProxyRemoteHandler.RemoteChannelInactiveCallback;
 import com.xx_dev.apn.proxy.config.ApnProxyListenType;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
-import com.xx_dev.apn.proxy.remotechooser.ApnProxySslRemote;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -40,18 +38,23 @@ public class ApnProxyRemoteChannelInitializer extends ChannelInitializer<SocketC
 
     private ApnProxyRemote apnProxyRemote;
 
-    private ChannelHandlerContext uaChannelCtx;
+    private Channel uaChannel;
     private RemoteChannelInactiveCallback remoteChannelInactiveCallback;
 
-    public ApnProxyRemoteChannelInitializer(ApnProxyRemote apnProxyRemote, ChannelHandlerContext uaChannelCtx,
+    public ApnProxyRemoteChannelInitializer(Channel uaChannel,
                                             RemoteChannelInactiveCallback remoteChannelInactiveCallback) {
-        this.apnProxyRemote = apnProxyRemote;
-        this.uaChannelCtx = uaChannelCtx;
+        this.uaChannel = uaChannel;
         this.remoteChannelInactiveCallback = remoteChannelInactiveCallback;
     }
 
     @Override
     public void initChannel(SocketChannel channel) throws Exception {
+
+        ApnProxyRemote apnProxyRemote = uaChannel
+                .attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY).get().getRemote();
+
+        channel.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY).set(uaChannel
+                .attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY).get());
 
         ChannelPipeline pipeline = channel.pipeline();
 
@@ -59,9 +62,8 @@ public class ApnProxyRemoteChannelInitializer extends ChannelInitializer<SocketC
         pipeline.addLast("idlehandler", new ApnProxyIdleHandler());
 
         if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.SSL) {
-            ApnProxySslRemote sslRemote = (ApnProxySslRemote) apnProxyRemote;
             SSLEngine engine = ApnProxySSLContextFactory.createClientSSLEnginForRemoteAddress(
-                    sslRemote.getRemoteHost(), sslRemote.getRemotePort());
+                    apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort());
             engine.setUseClientMode(true);
 
             pipeline.addLast("ssl", new SslHandler(engine));
@@ -69,7 +71,7 @@ public class ApnProxyRemoteChannelInitializer extends ChannelInitializer<SocketC
 
         pipeline.addLast("codec", new HttpClientCodec());
 
-        pipeline.addLast(ApnProxyRemoteHandler.HANDLER_NAME, new ApnProxyRemoteHandler(uaChannelCtx,
+        pipeline.addLast(ApnProxyRemoteHandler.HANDLER_NAME, new ApnProxyRemoteHandler(uaChannel,
                 remoteChannelInactiveCallback));
 
     }

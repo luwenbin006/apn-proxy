@@ -1,5 +1,6 @@
 package com.xx_dev.apn.proxy;
 
+import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
 import io.netty.util.AttributeKey;
 
 /**
@@ -16,28 +17,28 @@ public class ApnProxyConnectionAttribute {
 
     private int originPort;
 
-    private String remoteAddr;
+    private ApnProxyRemote remote;
 
     private ApnProxyConnectionAttribute() {
 
     }
 
-    public static ApnProxyConnectionAttribute build(String ua, String originHost, int originPort, String remoteAddr) {
+    public static ApnProxyConnectionAttribute build(String ua, String originHost, int originPort, ApnProxyRemote remote) {
         ApnProxyConnectionAttribute instance = new ApnProxyConnectionAttribute();
         instance.ua = ua;
         instance.originHost = originHost;
         instance.originPort = originPort;
-        instance.remoteAddr = remoteAddr;
+        instance.remote = remote;
 
 
         return instance;
     }
 
-    public String getRemoteAddr() {
-        return this.remoteAddr;
+    public ApnProxyRemote getRemote() {
+        return this.remote;
     }
 
     public String toString() {
-        return "UA: " + ua + ", ORIGIN: " + originHost + ":" + originPort + ", REMOTE: " + remoteAddr;
+        return "UA: " + ua + ", ORIGIN: " + originHost + ":" + originPort + ", REMOTE: " + remote;
     }
 }

@@ -16,6 +16,7 @@
 
 package com.xx_dev.apn.proxy;
 
+import com.xx_dev.apn.proxy.utils.LoggerUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.util.ReferenceCountUtil;
@@ -41,9 +42,7 @@ public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug(tag + " channel active");
-        }
+        LoggerUtil.debug(logger, ctx.channel().attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY), tag, "channel active");
 
         if (!ctx.channel().config().getOption(ChannelOption.AUTO_READ)) {
             ctx.read();
@@ -52,9 +51,7 @@ public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug(tag + " : " + msg);
-        }
+        LoggerUtil.debug(logger, ctx.channel().attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY), tag, msg);
 
         if (relayChannel.isActive()) {
             relayChannel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
@@ -73,9 +70,7 @@ public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug(tag + " channel inactive");
-        }
+        LoggerUtil.debug(logger, ctx.channel().attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY), tag, "channel inactive");
         if (relayChannel != null && relayChannel.isActive()) {
             relayChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(
                     ChannelFutureListener.CLOSE);

@@ -21,6 +21,7 @@ import com.xx_dev.apn.proxy.config.ApnProxyListenType;
 import com.xx_dev.apn.proxy.config.ApnProxyRemoteRule;
 import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 import com.xx_dev.apn.proxy.utils.HttpErrorUtil;
+import com.xx_dev.apn.proxy.utils.LoggerUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -63,17 +64,12 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
     private boolean preCheck(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
-            String hostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
-            String originalHost = HostNamePortUtil.getHostName(hostHeader);
 
-            // http rest log
-            if (httpRestLogger.isInfoEnabled()) {
-                httpRestLogger.info(ctx.channel().remoteAddress() + " "
-                        + httpRequest.getMethod().name() + " " + httpRequest.getUri()
-                        + " " + httpRequest.getProtocolVersion().text() + ", "
-                        + hostHeader + ", "
-                        + httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
-            }
+            String originalHost = HostNamePortUtil.getHostName(httpRequest);
+
+            LoggerUtil.info(httpRestLogger, httpRequest.getMethod().name(),
+                    httpRequest.getUri(), httpRequest.getProtocolVersion().text(),
+                    httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
 
             isPacRequest = false;
 
@@ -115,7 +111,7 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
             // forbid request to proxy server local
             if (StringUtils.equals(originalHost, "127.0.0.1")
                     || StringUtils.equals(originalHost, "localhost")) {
-                String errorMsg = "Forbidden";
+                String errorMsg = "Forbidden Host";
                 ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN,
                         errorMsg));
                 ctx.flush();
@@ -123,10 +119,10 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
             }
 
             // forbid reqeust to some port
-            int originalPort = HostNamePortUtil.getPort(hostHeader, -1);
+            int originalPort = HostNamePortUtil.getPort(httpRequest);
             for (int fobiddenPort : forbiddenPorts) {
                 if (originalPort == fobiddenPort) {
-                    String errorMsg = "Forbidden";
+                    String errorMsg = "Forbidden Port";
                     ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN,
                             errorMsg));
                     ctx.flush();

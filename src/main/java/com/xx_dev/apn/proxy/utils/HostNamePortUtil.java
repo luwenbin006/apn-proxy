@@ -16,6 +16,9 @@
 
 package com.xx_dev.apn.proxy.utils;
 
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpRequest;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -24,16 +27,26 @@ import org.apache.commons.lang.StringUtils;
  */
 public class HostNamePortUtil {
 
-    public static String getHostName(String addr) {
-        return StringUtils.split(addr, ": ")[0];
+    public static String getHostName(HttpRequest httpRequest) {
+        String originalHostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
+        String originalHost = StringUtils.split(originalHostHeader, ": ")[0];
+
+        return originalHost;
     }
 
-    public static int getPort(String addr, int defaultPort) {
-        String[] ss = StringUtils.split(addr, ": ");
-        if (ss.length == 2) {
-            return Integer.parseInt(ss[1]);
+    public static int getPort(HttpRequest httpRequest) {
+        String originalHostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
+        int originalPort = 80;
+
+        if (httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
+            originalPort = 443;
         }
-        return defaultPort;
+
+        if (StringUtils.split(originalHostHeader, ": ").length == 2) {
+            originalPort = Integer.parseInt(StringUtils.split(originalHostHeader, ": ")[1]);
+        }
+
+        return originalPort;
     }
 
 }

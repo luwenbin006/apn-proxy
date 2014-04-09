@@ -17,6 +17,7 @@
 package com.xx_dev.apn.proxy;
 
 import com.xx_dev.apn.proxy.config.ApnProxyConfig;
+import com.xx_dev.apn.proxy.utils.LoggerUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelOption;
@@ -41,9 +42,7 @@ public class ApnProxyServer {
         int workerThreadCount = ApnProxyConfig.getConfig().getWorkerThreadCount();
         int port = ApnProxyConfig.getConfig().getPort();
 
-        if (logger.isInfoEnabled()) {
-            logger.info("ApnProxy Server Listen on: " + port);
-        }
+        LoggerUtil.info(logger, "ApnProxy Server Listen on: " + port);
 
         ServerBootstrap serverBootStrap = new ServerBootstrap();
         serverBootStrap.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
@@ -65,9 +64,7 @@ public class ApnProxyServer {
     }
 
     public void shutdown() {
-        if (logger.isInfoEnabled()) {
-            logger.info("ApnProxy Server Shutdown");
-        }
+        LoggerUtil.info(logger, "ApnProxy Server Shutdown");
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
     }

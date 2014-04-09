@@ -19,13 +19,7 @@ package com.xx_dev.apn.proxy.expriment;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.DefaultHttpContent;
-import io.netty.handler.codec.http.DefaultHttpResponse;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 
@@ -45,7 +39,7 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
             String s = "1234567890";
 
-            for (int i=0; i<100000; i++) {
+            for (int i = 0; i < 100000; i++) {
                 DefaultHttpContent c1 = new DefaultHttpContent(Unpooled.copiedBuffer(s, CharsetUtil.UTF_8));
 
                 ctx.writeAndFlush(c1);
