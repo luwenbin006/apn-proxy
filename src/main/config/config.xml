@@ -22,12 +22,18 @@
 
     <!-- Let apn-proxy listen in ssl mode -->
     <!-- <listen-type>ssl</listen-type> -->
-    <!-- ssl mode must config server key store
+    <!-- ssl mode must config server key store -->
+    <!--
     <key-store>
         <path>conf/keystore.ks</path>
-        <password>123456</password>
+        <password>apnproxy</password>
     </key-store>
     -->
+
+    <trust-store>
+        <path>conf/truststore.ks</path>
+        <password>apnproxy</password>
+    </trust-store>
 
     <port>8700</port>
     <thread-count>
