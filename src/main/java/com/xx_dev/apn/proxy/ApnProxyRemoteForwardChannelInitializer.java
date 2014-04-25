@@ -16,7 +16,7 @@
 
 package com.xx_dev.apn.proxy;
 
-import com.xx_dev.apn.proxy.ApnProxyRemoteHandler.RemoteChannelInactiveCallback;
+import com.xx_dev.apn.proxy.ApnProxyRemoteForwardHandler.RemoteChannelInactiveCallback;
 import com.xx_dev.apn.proxy.config.ApnProxyListenType;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
 import io.netty.channel.Channel;
@@ -32,17 +32,17 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author xmx
- * @version $Id: com.xx_dev.apn.proxy.ApnProxyRemoteChannelInitializer 14-1-8 16:13 (xmx) Exp $
+ * @version $Id: com.xx_dev.apn.proxy.ApnProxyRemoteForwardChannelInitializer 14-1-8 16:13 (xmx) Exp $
  */
-public class ApnProxyRemoteChannelInitializer extends ChannelInitializer<SocketChannel> {
+public class ApnProxyRemoteForwardChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     private ApnProxyRemote apnProxyRemote;
 
     private Channel uaChannel;
     private RemoteChannelInactiveCallback remoteChannelInactiveCallback;
 
-    public ApnProxyRemoteChannelInitializer(Channel uaChannel,
-                                            RemoteChannelInactiveCallback remoteChannelInactiveCallback) {
+    public ApnProxyRemoteForwardChannelInitializer(Channel uaChannel,
+                                                   RemoteChannelInactiveCallback remoteChannelInactiveCallback) {
         this.uaChannel = uaChannel;
         this.remoteChannelInactiveCallback = remoteChannelInactiveCallback;
     }
@@ -71,7 +71,7 @@ public class ApnProxyRemoteChannelInitializer extends ChannelInitializer<SocketC
 
         pipeline.addLast("codec", new HttpClientCodec());
 
-        pipeline.addLast(ApnProxyRemoteHandler.HANDLER_NAME, new ApnProxyRemoteHandler(uaChannel,
+        pipeline.addLast(ApnProxyRemoteForwardHandler.HANDLER_NAME, new ApnProxyRemoteForwardHandler(uaChannel,
                 remoteChannelInactiveCallback));
 
     }

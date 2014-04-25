@@ -16,7 +16,7 @@
 
 package com.xx_dev.apn.proxy;
 
-import com.xx_dev.apn.proxy.ApnProxyRemoteHandler.RemoteChannelInactiveCallback;
+import com.xx_dev.apn.proxy.ApnProxyRemoteForwardHandler.RemoteChannelInactiveCallback;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
 import com.xx_dev.apn.proxy.utils.Base64;
 import com.xx_dev.apn.proxy.utils.HttpErrorUtil;
@@ -77,7 +77,7 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
                         .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                         .option(ChannelOption.AUTO_READ, false)
                         .handler(
-                                new ApnProxyRemoteChannelInitializer(uaChannel, this));
+                                new ApnProxyRemoteForwardChannelInitializer(uaChannel, this));
 
                 // set local address
                 if (StringUtils.isNotBlank(ApnProxyLocalAddressChooser.choose(apnProxyRemote

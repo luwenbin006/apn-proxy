@@ -25,13 +25,13 @@ import org.apache.log4j.Logger;
 
 /**
  * @author xmx
- * @version $Id: com.xx_dev.apn.proxy.ApnProxyRemoteHandler 14-1-8 16:13 (xmx) Exp $
+ * @version $Id: com.xx_dev.apn.proxy.ApnProxyRemoteForwardHandler 14-1-8 16:13 (xmx) Exp $
  */
-public class ApnProxyRemoteHandler extends ChannelInboundHandlerAdapter {
+public class ApnProxyRemoteForwardHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger logger = Logger.getLogger(ApnProxyRemoteHandler.class);
+    private static final Logger logger = Logger.getLogger(ApnProxyRemoteForwardHandler.class);
 
-    public static final String HANDLER_NAME = "apnproxy.proxy.remote";
+    public static final String HANDLER_NAME = "apnproxy.remote.forward";
 
     private Channel uaChannel;
 
@@ -39,8 +39,8 @@ public class ApnProxyRemoteHandler extends ChannelInboundHandlerAdapter {
 
     private int remainMsgCount = 0;
 
-    public ApnProxyRemoteHandler(Channel uaChannel,
-                                 RemoteChannelInactiveCallback remoteChannelInactiveCallback) {
+    public ApnProxyRemoteForwardHandler(Channel uaChannel,
+                                        RemoteChannelInactiveCallback remoteChannelInactiveCallback) {
         this.uaChannel = uaChannel;
         this.remoteChannelInactiveCallback = remoteChannelInactiveCallback;
     }

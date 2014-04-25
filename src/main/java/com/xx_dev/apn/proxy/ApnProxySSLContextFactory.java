@@ -17,6 +17,7 @@
 package com.xx_dev.apn.proxy;
 
 import com.xx_dev.apn.proxy.config.ApnProxyConfig;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import javax.net.ssl.*;
@@ -59,26 +60,33 @@ public class ApnProxySSLContextFactory {
         try {
             SSLContext sslcontext = SSLContext.getInstance("TLS");
 
+
+            KeyManager[] keyManagers = null;
+            TrustManager[] trustManagers = null;
+
+
+
             KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-
             KeyStore ks = KeyStore.getInstance("JKS");
-            KeyStore tks = KeyStore.getInstance("JKS");
-
             String keyStorePath = ApnProxyConfig.getConfig().getKeyStorePath();
             String keyStorePassword = ApnProxyConfig.getConfig().getKeyStroePassword();
-
-            String trustStorePath = ApnProxyConfig.getConfig().getTrustStorePath();
-            String trustStorePassword = ApnProxyConfig.getConfig().getKeyStroePassword();
-
             ks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
-            tks.load(new FileInputStream(trustStorePath), trustStorePassword.toCharArray());
-
             String keyPassword = ApnProxyConfig.getConfig().getKeyStroePassword();
             kmf.init(ks, keyPassword.toCharArray());
-            tmf.init(tks);
+            keyManagers = kmf.getKeyManagers();
 
-            sslcontext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+
+            if (ApnProxyConfig.getConfig().isUseTrustStore()) {
+                TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+                KeyStore tks = KeyStore.getInstance("JKS");
+                String trustStorePath = ApnProxyConfig.getConfig().getTrustStorePath();
+                String trustStorePassword = ApnProxyConfig.getConfig().getKeyStroePassword();
+                tks.load(new FileInputStream(trustStorePath), trustStorePassword.toCharArray());
+                tmf.init(tks);
+                trustManagers = tmf.getTrustManagers();
+            }
+
+            sslcontext.init(keyManagers, trustManagers, null);
 
             SSLEngine sslEngine = sslcontext.createSSLEngine();
             sslEngine.setUseClientMode(false);
