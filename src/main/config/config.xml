@@ -37,8 +37,8 @@
 
     <port>8700</port>
     <thread-count>
-        <boss>50</boss>
-        <worker>200</worker>
+        <boss>1</boss>
+        <worker>50</worker>
     </thread-count>
 
     <pac-host>localhost</pac-host>

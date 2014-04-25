@@ -37,7 +37,7 @@
         <param name="append" value="true"/>
         <param name="encoding" value="UTF-8"/>
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %5p -: %m%n"/>
+            <param name="ConversionPattern" value="%d %t %5p -: %m%n"/>
         </layout>
     </appender>
 
@@ -46,7 +46,7 @@
         <param name="append" value="true"/>
         <param name="encoding" value="UTF-8"/>
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %5p -: %m%n"/>
+            <param name="ConversionPattern" value="%d %t %5p -: %m%n"/>
         </layout>
     </appender>
 
@@ -55,7 +55,7 @@
         <param name="append" value="true"/>
         <param name="encoding" value="UTF-8"/>
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %5p -: %m%n"/>
+            <param name="ConversionPattern" value="%d %t %5p -: %m%n"/>
         </layout>
     </appender>
 
@@ -64,7 +64,7 @@
         <param name="append" value="true"/>
         <param name="encoding" value="UTF-8"/>
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %5p -: %m%n"/>
+            <param name="ConversionPattern" value="%d %t %5p -: %m%n"/>
         </layout>
     </appender>
 
