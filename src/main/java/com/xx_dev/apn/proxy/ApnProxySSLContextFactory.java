@@ -17,11 +17,13 @@
 package com.xx_dev.apn.proxy;
 
 import com.xx_dev.apn.proxy.config.ApnProxyConfig;
+import com.xx_dev.apn.proxy.config.ApnProxyListenType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import javax.net.ssl.*;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.security.KeyStore;
 
 /**
@@ -32,19 +34,48 @@ public class ApnProxySSLContextFactory {
 
     private static final Logger logger = Logger.getLogger(ApnProxySSLContextFactory.class);
 
-    public static SSLEngine createClientSSLEnginForRemoteAddress(String host, int port) {
+    private static KeyManager[] keyManagers = null;
+    private static TrustManager[] trustManagers = null;
+
+    static {
         try {
-            SSLContext sslcontext = SSLContext.getInstance("TLS");
-            TrustManager[] trustManagers = null;
+
+            if (ApnProxyConfig.getConfig().getListenType() == ApnProxyListenType.SSL) {
+                KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+                KeyStore ks = KeyStore.getInstance("JKS");
+                String keyStorePath = ApnProxyConfig.getConfig().getKeyStorePath();
+                String keyStorePassword = ApnProxyConfig.getConfig().getKeyStroePassword();
+
+                InputStream keyStoreInputStream = new FileInputStream(keyStorePath);
+                ks.load(keyStoreInputStream, keyStorePassword.toCharArray());
+                keyStoreInputStream.close();
+
+                String keyPassword = ApnProxyConfig.getConfig().getKeyStroePassword();
+                kmf.init(ks, keyPassword.toCharArray());
+                keyManagers = kmf.getKeyManagers();
+            }
+
             if (ApnProxyConfig.getConfig().isUseTrustStore()) {
                 TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
                 KeyStore tks = KeyStore.getInstance("JKS");
-                tks.load(new FileInputStream(ApnProxyConfig.getConfig().getTrustStorePath()),
-                        ApnProxyConfig.getConfig().getTrustStorePassword().toCharArray());
+                String trustStorePath = ApnProxyConfig.getConfig().getTrustStorePath();
+                String trustStorePassword = ApnProxyConfig.getConfig().getTrustStorePassword();
+
+                InputStream trustStoreInputStream = new FileInputStream(trustStorePath);
+                tks.load(trustStoreInputStream, trustStorePassword.toCharArray());
+                trustStoreInputStream.close();
+
                 tmf.init(tks);
                 trustManagers = tmf.getTrustManagers();
             }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
 
+    public static SSLEngine createClientSSLEnginForRemoteAddress(String host, int port) {
+        try {
+            SSLContext sslcontext = SSLContext.getInstance("TLS");
             sslcontext.init(null, trustManagers, null);
 
             return sslcontext.createSSLEngine(host, port);
@@ -59,32 +90,6 @@ public class ApnProxySSLContextFactory {
 
         try {
             SSLContext sslcontext = SSLContext.getInstance("TLS");
-
-
-            KeyManager[] keyManagers = null;
-            TrustManager[] trustManagers = null;
-
-
-
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-            KeyStore ks = KeyStore.getInstance("JKS");
-            String keyStorePath = ApnProxyConfig.getConfig().getKeyStorePath();
-            String keyStorePassword = ApnProxyConfig.getConfig().getKeyStroePassword();
-            ks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
-            String keyPassword = ApnProxyConfig.getConfig().getKeyStroePassword();
-            kmf.init(ks, keyPassword.toCharArray());
-            keyManagers = kmf.getKeyManagers();
-
-
-            if (ApnProxyConfig.getConfig().isUseTrustStore()) {
-                TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-                KeyStore tks = KeyStore.getInstance("JKS");
-                String trustStorePath = ApnProxyConfig.getConfig().getTrustStorePath();
-                String trustStorePassword = ApnProxyConfig.getConfig().getKeyStroePassword();
-                tks.load(new FileInputStream(trustStorePath), trustStorePassword.toCharArray());
-                tmf.init(tks);
-                trustManagers = tmf.getTrustManagers();
-            }
 
             sslcontext.init(keyManagers, trustManagers, null);
 
