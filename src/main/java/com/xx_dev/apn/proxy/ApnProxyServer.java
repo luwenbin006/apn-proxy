@@ -20,6 +20,7 @@ import com.xx_dev.apn.proxy.config.ApnProxyConfig;
 import com.xx_dev.apn.proxy.utils.LoggerUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -45,7 +46,7 @@ public class ApnProxyServer {
         LoggerUtil.info(logger, "ApnProxy Server Listen on: " + port);
 
         ServerBootstrap serverBootStrap = new ServerBootstrap();
-        serverBootStrap.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+        serverBootStrap.childOption(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT);
 
         bossGroup = new NioEventLoopGroup(bossThreadCount);
         workerGroup = new NioEventLoopGroup(workerThreadCount);
