@@ -118,10 +118,7 @@ public class ApnProxyUserAgentForwardHandler extends ChannelInboundHandlerAdapte
                             }
                             httpContentBuffer.clear();
                         } else {
-                            logger.error("Remote connect fail, " + uaChannel
-                                    .attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY));
-
-                            LoggerUtil.error(logger, uaChannel.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY), "Create new remote channel");
+                            LoggerUtil.error(logger, uaChannel.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY), "Remote channel create fail");
 
                             // send error response
                             String errorMsg = "remote connect to " + uaChannel.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY).get().getRemote().getRemoteAddr() + " fail";
