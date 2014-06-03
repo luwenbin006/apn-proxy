@@ -67,7 +67,8 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
 
             String originalHost = HostNamePortUtil.getHostName(httpRequest);
 
-            LoggerUtil.info(httpRestLogger, httpRequest.getMethod().name(),
+            LoggerUtil.info(httpRestLogger, ctx.channel().remoteAddress().toString(),
+                    httpRequest.getMethod().name(),
                     httpRequest.getUri(), httpRequest.getProtocolVersion().text(),
                     httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
 
