@@ -18,7 +18,6 @@ package com.xx_dev.apn.proxy;
 
 import com.xx_dev.apn.proxy.config.ApnProxyConfig;
 import com.xx_dev.apn.proxy.config.ApnProxyListenType;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import javax.net.ssl.*;
