@@ -23,6 +23,7 @@ import com.xx_dev.apn.proxy.utils.LoggerUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import org.apache.log4j.Logger;
@@ -51,12 +52,13 @@ public class ApnProxySchemaHandler extends ChannelInboundHandlerAdapter {
 
             Channel uaChannel = uaChannelCtx.channel();
 
-            uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY).set(
-                    ApnProxyConnectionAttribute.build(uaChannelCtx.channel().remoteAddress().toString(),
-                            originalHost, originalPort, apnProxyRemote));
-            uaChannel.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY).set(
-                    ApnProxyConnectionAttribute.build(uaChannelCtx.channel().remoteAddress().toString(),
-                            originalHost, originalPort, apnProxyRemote));
+            ApnProxyConnectionAttribute apnProxyConnectionAttribute = ApnProxyConnectionAttribute.build(
+                    uaChannel.remoteAddress().toString(), httpRequest.getMethod().name(),
+                    httpRequest.getUri(), httpRequest.getProtocolVersion().text(),
+                    httpRequest.headers().get(HttpHeaders.Names.USER_AGENT), apnProxyRemote);
+
+            uaChannelCtx.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY).set(apnProxyConnectionAttribute);
+            uaChannel.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY).set(apnProxyConnectionAttribute);
 
             if (httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
                 if (uaChannelCtx.pipeline().get(ApnProxyUserAgentForwardHandler.HANDLER_NAME) != null) {

@@ -31,6 +31,8 @@ public class ApnProxyRemoteForwardHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(ApnProxyRemoteForwardHandler.class);
 
+    private static final Logger forwardRestLogger = Logger.getLogger("FORWARD_REST_LOGGER");
+
     public static final String HANDLER_NAME = "apnproxy.remote.forward";
 
     private Channel uaChannel;
@@ -66,6 +68,10 @@ public class ApnProxyRemoteForwardHandler extends ChannelInboundHandlerAdapter {
 
         if (ho instanceof HttpResponse) {
             HttpResponse httpResponse = (HttpResponse) ho;
+
+            LoggerUtil.info(forwardRestLogger, uaChannel.attr(ApnProxyConnectionAttribute.ATTRIBUTE_KEY), httpResponse.getStatus(), httpResponse.getProtocolVersion());
+
+
             httpResponse.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
             httpResponse.headers().set("Proxy-Connection", HttpHeaders.Values.KEEP_ALIVE);
         }

@@ -11,11 +11,15 @@ public class ApnProxyConnectionAttribute {
 
     public static final AttributeKey<ApnProxyConnectionAttribute> ATTRIBUTE_KEY = AttributeKey.valueOf("connection_context");
 
+    private String uaAddress;
+
+    private String method;
+
+    private String url;
+
+    private String httpVersion;
+
     private String ua;
-
-    private String originHost;
-
-    private int originPort;
 
     private ApnProxyRemote remote;
 
@@ -23,13 +27,15 @@ public class ApnProxyConnectionAttribute {
 
     }
 
-    public static ApnProxyConnectionAttribute build(String ua, String originHost, int originPort, ApnProxyRemote remote) {
+    public static ApnProxyConnectionAttribute build(String uaAddress, String method, String url, String httpVersion, String ua, ApnProxyRemote remote) {
         ApnProxyConnectionAttribute instance = new ApnProxyConnectionAttribute();
-        instance.ua = ua;
-        instance.originHost = originHost;
-        instance.originPort = originPort;
-        instance.remote = remote;
 
+        instance.uaAddress = uaAddress;
+        instance.method = method;
+        instance.url = url;
+        instance.httpVersion = httpVersion;
+        instance.ua = ua;
+        instance.remote = remote;
 
         return instance;
     }
@@ -39,6 +45,6 @@ public class ApnProxyConnectionAttribute {
     }
 
     public String toString() {
-        return "UA: " + ua + ", ORIGIN: " + originHost + ":" + originPort + ", REMOTE: " + remote;
+        return uaAddress + ", " + method + " " + url + " " + httpVersion + ", UA: " + ua +  ", REMOTE: " + remote;
     }
 }
