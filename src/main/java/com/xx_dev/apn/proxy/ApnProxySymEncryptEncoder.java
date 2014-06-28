@@ -21,6 +21,7 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import org.apache.log4j.Logger;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.Charset;
 import java.security.Key;
@@ -34,6 +35,7 @@ public class ApnProxySymEncryptEncoder extends MessageToByteEncoder<ByteBuf> {
     private static final Logger logger = Logger.getLogger(ApnProxySymEncryptEncoder.class);
 
     private String key = "1234567812345678";
+    private String iv = "abcdefgh";
 
 
     @Override
@@ -41,7 +43,7 @@ public class ApnProxySymEncryptEncoder extends MessageToByteEncoder<ByteBuf> {
         try {
             Key securekey = new SecretKeySpec(key.getBytes(Charset.forName("UTF-8")), "AES");
             Cipher c1 = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            c1.init(Cipher.ENCRYPT_MODE, securekey);
+            c1.init(Cipher.ENCRYPT_MODE, securekey, new IvParameterSpec(iv.getBytes(Charset.forName("UTF-8"))));
             byte[] array = new byte[msg.readableBytes()];
             msg.readBytes(array);
             byte[] raw = c1.doFinal(array);

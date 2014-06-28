@@ -21,6 +21,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.Charset;
 import java.security.Key;
@@ -33,6 +34,7 @@ import java.util.List;
 public class ApnProxySymDecryptDecoder extends ReplayingDecoder<ApnProxySymDecryptDecoder.STATE>{
 
     private String key = "1234567812345678";
+    private String iv = "abcdefgh";
 
     enum STATE {
         READ_LENGTH,
@@ -56,7 +58,7 @@ public class ApnProxySymDecryptDecoder extends ReplayingDecoder<ApnProxySymDecry
             case READ_CONTENT: {
                 Key securekey = new SecretKeySpec(key.getBytes(Charset.forName("UTF-8")), "AES");
                 Cipher c1 = Cipher.getInstance("AES/CBC/PKCS5Padding");
-                c1.init(Cipher.DECRYPT_MODE, securekey);
+                c1.init(Cipher.DECRYPT_MODE, securekey, new IvParameterSpec(iv.getBytes(Charset.forName("UTF-8"))));
                 byte[] data = new byte[length];
                 in.readBytes(data, 0, length);
                 byte[] raw = c1.doFinal(data);
