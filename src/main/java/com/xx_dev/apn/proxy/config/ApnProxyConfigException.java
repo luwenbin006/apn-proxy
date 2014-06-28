@@ -14,11 +14,11 @@
  * under the License.
  */
 
-package com.xx_dev.apn.proxy;
+package com.xx_dev.apn.proxy.config;
 
 /**
  * @author xmx
- * @version $Id: com.xx_dev.apn.proxy.ApnProxyConfigException 14-1-8 16:13 (xmx) Exp $
+ * @version $Id: com.xx_dev.apn.proxy.config.ApnProxyConfigException 14-1-8 16:13 (xmx) Exp $
  */
 public class ApnProxyConfigException extends RuntimeException {
 

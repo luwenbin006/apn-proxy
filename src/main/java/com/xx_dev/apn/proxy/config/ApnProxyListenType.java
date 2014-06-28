@@ -16,7 +16,6 @@
 
 package com.xx_dev.apn.proxy.config;
 
-import com.xx_dev.apn.proxy.ApnProxyConfigException;
 import org.apache.commons.lang.StringUtils;
 
 /**

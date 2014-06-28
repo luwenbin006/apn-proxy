@@ -16,7 +16,6 @@
 
 package com.xx_dev.apn.proxy.config;
 
-import com.xx_dev.apn.proxy.ApnProxyConfigException;
 import nu.xom.Element;
 import nu.xom.Elements;
 import org.apache.log4j.Logger;
