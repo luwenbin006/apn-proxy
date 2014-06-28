@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class ApnProxySymDecryptDecoder extends ReplayingDecoder<ApnProxySymDecryptDecoder.STATE>{
 
-    private String key = "apn-proxy-test-sym-key";
+    private String key = "1234567812345678";
 
     enum STATE {
         READ_LENGTH,

@@ -31,9 +31,9 @@ import java.security.Key;
  */
 public class ApnProxySymEncryptEncoder extends MessageToByteEncoder<ByteBuf> {
 
-    private static final Logger logger = Logger.getLogger(ApnProxySSLContextFactory.class);
+    private static final Logger logger = Logger.getLogger(ApnProxySymEncryptEncoder.class);
 
-    private String key = "apn-proxy-test-sym-key";
+    private String key = "1234567812345678";
 
 
     @Override
