@@ -23,11 +23,13 @@ import org.apache.commons.lang.StringUtils;
  * @version $Id: com.xx_dev.apn.proxy.config.ApnProxyListenType 14-1-8 16:13 (xmx) Exp $
  */
 public enum ApnProxyListenType {
-    SSL, PLAIN;
+    SSL, SYM, PLAIN;
 
     public static ApnProxyListenType fromString(String _listenType) {
         if (StringUtils.equals(_listenType, "ssl")) {
             return ApnProxyListenType.SSL;
+        } else if (StringUtils.equals(_listenType, "sym")) {
+            return ApnProxyListenType.SYM;
         } else if (StringUtils.equals(_listenType, "plain")) {
             return ApnProxyListenType.PLAIN;
         } else {
