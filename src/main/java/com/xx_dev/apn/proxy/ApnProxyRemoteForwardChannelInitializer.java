@@ -62,11 +62,12 @@ public class ApnProxyRemoteForwardChannelInitializer extends ChannelInitializer<
         pipeline.addLast("idlehandler", new ApnProxyIdleHandler());
 
         if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.SSL) {
-            SSLEngine engine = ApnProxySSLContextFactory.createClientSSLEnginForRemoteAddress(
-                    apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort());
-            engine.setUseClientMode(true);
-
-            pipeline.addLast("ssl", new SslHandler(engine));
+//            SSLEngine engine = ApnProxySSLContextFactory.createClientSSLEnginForRemoteAddress(
+//                    apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort());
+//            engine.setUseClientMode(true);
+//
+//            pipeline.addLast("ssl", new SslHandler(engine));
+            pipeline.addLast("apnproxy.encrypt", new ApnProxySymEncryptCodec());
         }
 
         pipeline.addLast("codec", new HttpClientCodec());
