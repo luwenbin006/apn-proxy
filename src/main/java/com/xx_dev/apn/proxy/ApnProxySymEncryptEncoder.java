@@ -35,7 +35,7 @@ public class ApnProxySymEncryptEncoder extends MessageToByteEncoder<ByteBuf> {
     private static final Logger logger = Logger.getLogger(ApnProxySymEncryptEncoder.class);
 
     private String key = "1234567812345678";
-    private String iv = "abcdefgh";
+    private String iv = "abcdefghabcdefgh";
 
 
     @Override

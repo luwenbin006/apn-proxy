@@ -34,7 +34,7 @@ import java.util.List;
 public class ApnProxySymDecryptDecoder extends ReplayingDecoder<ApnProxySymDecryptDecoder.STATE>{
 
     private String key = "1234567812345678";
-    private String iv = "abcdefgh";
+    private String iv = "abcdefghabcdefgh";
 
     enum STATE {
         READ_LENGTH,
