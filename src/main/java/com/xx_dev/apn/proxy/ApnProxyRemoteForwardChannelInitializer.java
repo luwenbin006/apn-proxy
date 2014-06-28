@@ -67,7 +67,8 @@ public class ApnProxyRemoteForwardChannelInitializer extends ChannelInitializer<
 //            engine.setUseClientMode(true);
 //
 //            pipeline.addLast("ssl", new SslHandler(engine));
-            pipeline.addLast("apnproxy.encrypt", new ApnProxySymEncryptCodec());
+            pipeline.addLast("apnproxy.encrypt", new ApnProxySymEncryptEncoder());
+            pipeline.addLast("apnproxy.decrypt", new ApnProxySymDecryptDecoder());
         }
 
         pipeline.addLast("codec", new HttpClientCodec());

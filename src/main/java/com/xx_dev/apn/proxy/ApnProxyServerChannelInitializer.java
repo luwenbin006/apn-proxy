@@ -49,7 +49,8 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
 //            SSLEngine engine = ApnProxySSLContextFactory.createServerSSLSSLEngine();
 //            pipeline.addLast("apnproxy.encrypt", new SslHandler(engine));
 
-            pipeline.addLast("apnproxy.encrypt", new ApnProxySymEncryptCodec());
+            pipeline.addLast("apnproxy.encrypt", new ApnProxySymEncryptEncoder());
+            pipeline.addLast("apnproxy.decrypt", new ApnProxySymDecryptDecoder());
         }
 
         pipeline.addLast("log", new LoggingHandler("BYTE_LOGGER", LogLevel.INFO));
