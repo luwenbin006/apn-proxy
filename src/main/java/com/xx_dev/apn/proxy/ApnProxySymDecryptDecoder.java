@@ -66,7 +66,7 @@ public class ApnProxySymDecryptDecoder extends ReplayingDecoder<ApnProxySymDecry
                 outBuf.writeBytes(raw);
                 out.add(outBuf);
                 this.checkpoint(STATE.READ_LENGTH);
-                return;
+                break;
             }
             default:
                 throw new Error("Shouldn't reach here.");
