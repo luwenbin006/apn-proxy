@@ -28,11 +28,11 @@ import java.security.Key;
 
 /**
  * @author xmx
- * @version $Id: com.xx_dev.apn.proxy.ApnProxySymEncryptEncoder 14-6-28 12:09 (xmx) Exp $
+ * @version $Id: com.xx_dev.apn.proxy.ApnProxyAESEncoder 14-6-28 12:09 (xmx) Exp $
  */
-public class ApnProxySymEncryptEncoder extends MessageToByteEncoder<ByteBuf> {
+public class ApnProxyAESEncoder extends MessageToByteEncoder<ByteBuf> {
 
-    private static final Logger logger = Logger.getLogger(ApnProxySymEncryptEncoder.class);
+    private static final Logger logger = Logger.getLogger(ApnProxyAESEncoder.class);
 
     private String key = "1234567812345678";
     private String iv = "abcdefghabcdefgh";

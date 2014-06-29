@@ -46,10 +46,10 @@ public class ApnProxyRemoteChooser {
                 apRemote = apSslRemote;
             }
 
-            if (remoteRule.getRemoteListenType() == ApnProxyListenType.SYM) {
+            if (remoteRule.getRemoteListenType() == ApnProxyListenType.AES) {
                 ApnProxyRemote apSymRemote = new ApnProxyRemote();
                 apSymRemote.setAppleyRemoteRule(true);
-                apSymRemote.setRemoteListenType(ApnProxyListenType.SYM);
+                apSymRemote.setRemoteListenType(ApnProxyListenType.AES);
 
                 apRemote = apSymRemote;
             }

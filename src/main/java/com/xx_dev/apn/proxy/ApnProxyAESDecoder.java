@@ -16,7 +16,6 @@
 package com.xx_dev.apn.proxy;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
 
@@ -29,9 +28,9 @@ import java.util.List;
 
 /**
  * @author xmx
- * @version $Id: com.xx_dev.apn.proxy.ApnProxySymDecryptDecoder 14-6-28 12:09 (xmx) Exp $
+ * @version $Id: com.xx_dev.apn.proxy.ApnProxyAESDecoder 14-6-28 12:09 (xmx) Exp $
  */
-public class ApnProxySymDecryptDecoder extends ReplayingDecoder<ApnProxySymDecryptDecoder.STATE>{
+public class ApnProxyAESDecoder extends ReplayingDecoder<ApnProxyAESDecoder.STATE>{
 
     private String key = "1234567812345678";
     private String iv = "abcdefghabcdefgh";
@@ -43,7 +42,7 @@ public class ApnProxySymDecryptDecoder extends ReplayingDecoder<ApnProxySymDecry
 
     private int length;
 
-    public ApnProxySymDecryptDecoder() {
+    public ApnProxyAESDecoder() {
         super(STATE.READ_LENGTH);
     }
 

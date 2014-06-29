@@ -62,9 +62,9 @@ public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketC
             engine.setUseClientMode(true);
 
             pipeline.addLast("ssl", new SslHandler(engine));
-        } else if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.SYM) {
-            pipeline.addLast("apnproxy.encrypt", new ApnProxySymEncryptEncoder());
-            pipeline.addLast("apnproxy.decrypt", new ApnProxySymDecryptDecoder());
+        } else if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.AES) {
+            pipeline.addLast("apnproxy.encrypt", new ApnProxyAESEncoder());
+            pipeline.addLast("apnproxy.decrypt", new ApnProxyAESDecoder());
         }
 
         if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.PLAIN) {
