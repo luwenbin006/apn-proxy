@@ -20,6 +20,7 @@ import nu.xom.Element;
 import nu.xom.Elements;
 import org.apache.log4j.Logger;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +38,29 @@ public class ApnProxyConfigReader extends ApnProxyAbstractXmlConfigReader {
         Elements listenTypeElements = rootElement.getChildElements("listen-type");
         if (listenTypeElements.size() == 1) {
             String _listenType = listenTypeElements.get(0).getValue();
-            ApnProxyConfig.getConfig().setListenType(ApnProxyListenType.fromString(_listenType));
+            ApnProxyListenType listenType = ApnProxyListenType.fromString(_listenType);
+            ApnProxyConfig.getConfig().setListenType(listenType);
+
+            if (listenType == ApnProxyListenType.AES) {
+                Elements keyElements = rootElement
+                        .getChildElements("key");
+                if (keyElements.size() != 1) {
+                    throw new ApnProxyConfigException("Wrong config for: key");
+                }
+                String _key = keyElements.get(0).getValue();
+
+
+                Elements ivElements = rootElement
+                        .getChildElements("iv");
+                if (keyElements.size() != 1) {
+                    throw new ApnProxyConfigException("Wrong config for: iv ");
+                }
+                String iv = ivElements.get(0).getValue();
+
+                ApnProxyConfig.getConfig().setKey(_key.getBytes(Charset.forName("UTF-8")));
+                ApnProxyConfig.getConfig().setIv(iv.getBytes(Charset.forName("UTF-8")));
+            }
+
         }
 
         Elements keyStoreElements = rootElement.getChildElements("key-store");

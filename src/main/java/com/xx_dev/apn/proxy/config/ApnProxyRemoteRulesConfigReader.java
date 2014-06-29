@@ -20,6 +20,7 @@ import nu.xom.Element;
 import nu.xom.Elements;
 import org.apache.log4j.Logger;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,9 +40,43 @@ public class ApnProxyRemoteRulesConfigReader extends ApnProxyAbstractXmlConfigRe
         Elements ruleElements = remoteRulesElement.getChildElements("rule");
 
         for (int i = 0; i < ruleElements.size(); i++) {
-            ApnProxyRemoteRule apnProxyRemoteRule = new ApnProxyRemoteRule();
-
             Element ruleElement = ruleElements.get(i);
+
+            Elements remoteListenTypeElements = ruleElement
+                    .getChildElements("remote-listen-type");
+            if (remoteListenTypeElements.size() != 1) {
+                throw new ApnProxyConfigException("Wrong config for: remote-listen-type");
+            }
+            String _remoteListenType = remoteListenTypeElements.get(0).getValue();
+            ApnProxyListenType remoteListenType = ApnProxyListenType
+                    .fromString(_remoteListenType);
+
+
+            ApnProxyRemoteRule apnProxyRemoteRule = null;
+            if (remoteListenType == ApnProxyListenType.AES) {
+                apnProxyRemoteRule = new ApnProxyAESRemoteRule();
+                Elements remoteKeyElements = ruleElement
+                        .getChildElements("key");
+                if (remoteKeyElements.size() != 1) {
+                    throw new ApnProxyConfigException("Wrong config for: key of AES remote");
+                }
+                String _remoteKey = remoteKeyElements.get(0).getValue();
+
+
+                Elements remoteIVElements = ruleElement
+                        .getChildElements("iv");
+                if (remoteKeyElements.size() != 1) {
+                    throw new ApnProxyConfigException("Wrong config for: iv of AES remote");
+                }
+                String _remoteIV = remoteIVElements.get(0).getValue();
+
+                ((ApnProxyAESRemoteRule)apnProxyRemoteRule).setKey(_remoteKey.getBytes(Charset.forName("UTF-8")));
+                ((ApnProxyAESRemoteRule)apnProxyRemoteRule).setIv(_remoteIV.getBytes(Charset.forName("UTF-8")));
+
+            } else {
+                apnProxyRemoteRule = new ApnProxyRemoteRule();
+            }
+            apnProxyRemoteRule.setRemoteListenType(remoteListenType);
 
             Elements remoteHostElements = ruleElement.getChildElements("remote-host");
             if (remoteHostElements.size() != 1) {
@@ -75,22 +110,6 @@ public class ApnProxyRemoteRulesConfigReader extends ApnProxyAbstractXmlConfigRe
                 String proxyPassword = proxyPasswordElements.get(0).getValue();
                 apnProxyRemoteRule.setProxyPassword(proxyPassword);
             }
-
-            Elements remoteListenTypeElements = ruleElement
-                    .getChildElements("remote-listen-type");
-            if (remoteListenTypeElements.size() != 1) {
-                throw new ApnProxyConfigException("Wrong config for: remote-listen-type");
-            }
-            String _remoteListenType = remoteListenTypeElements.get(0).getValue();
-            ApnProxyListenType remoteListenType = ApnProxyListenType
-                    .fromString(_remoteListenType);
-            apnProxyRemoteRule.setRemoteListenType(remoteListenType);
-
-            if (remoteListenType == ApnProxyListenType.SSL) {
-                //ApnProxySSLContextFactory.createSSLContext(remoteHost, remotePort);
-            }
-
-            // simple key; ssl trust store
 
             Elements applyListElements = ruleElement.getChildElements("apply-list");
             if (applyListElements.size() == 1) {

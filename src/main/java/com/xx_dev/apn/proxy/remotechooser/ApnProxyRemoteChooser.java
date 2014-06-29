@@ -16,6 +16,7 @@
 
 package com.xx_dev.apn.proxy.remotechooser;
 
+import com.xx_dev.apn.proxy.config.ApnProxyAESRemoteRule;
 import com.xx_dev.apn.proxy.config.ApnProxyConfig;
 import com.xx_dev.apn.proxy.config.ApnProxyListenType;
 import com.xx_dev.apn.proxy.config.ApnProxyRemoteRule;
@@ -47,11 +48,17 @@ public class ApnProxyRemoteChooser {
             }
 
             if (remoteRule.getRemoteListenType() == ApnProxyListenType.AES) {
-                ApnProxyRemote apSymRemote = new ApnProxyRemote();
-                apSymRemote.setAppleyRemoteRule(true);
-                apSymRemote.setRemoteListenType(ApnProxyListenType.AES);
+                ApnProxyAESRemote apAESRemote = new ApnProxyAESRemote();
+                apAESRemote.setAppleyRemoteRule(true);
+                apAESRemote.setRemoteListenType(ApnProxyListenType.AES);
 
-                apRemote = apSymRemote;
+                byte[] key = ((ApnProxyAESRemoteRule)remoteRule).getKey();
+                byte[] iv = ((ApnProxyAESRemoteRule)remoteRule).getIv();
+
+                apAESRemote.setKey(key);
+                apAESRemote.setIv(iv);
+
+                apRemote = apAESRemote;
             }
 
             if (remoteRule.getRemoteListenType() == ApnProxyListenType.PLAIN) {

@@ -32,9 +32,6 @@ import java.util.List;
  */
 public class ApnProxyAESDecoder extends ReplayingDecoder<ApnProxyAESDecoder.STATE>{
 
-    private String key = "1234567812345678";
-    private String iv = "abcdefghabcdefgh";
-
     enum STATE {
         READ_LENGTH,
         READ_CONTENT
@@ -42,10 +39,14 @@ public class ApnProxyAESDecoder extends ReplayingDecoder<ApnProxyAESDecoder.STAT
 
     private int length;
 
-    public ApnProxyAESDecoder() {
-        super(STATE.READ_LENGTH);
-    }
+    private byte[] key;
+    private byte[] iv;
 
+    public ApnProxyAESDecoder(byte[] key, byte[] iv) {
+        super(STATE.READ_LENGTH);
+        this.key = key;
+        this.iv = iv;
+    }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
@@ -55,9 +56,9 @@ public class ApnProxyAESDecoder extends ReplayingDecoder<ApnProxyAESDecoder.STAT
                 this.checkpoint(STATE.READ_CONTENT);
             }
             case READ_CONTENT: {
-                Key securekey = new SecretKeySpec(key.getBytes(Charset.forName("UTF-8")), "AES");
+                Key securekey = new SecretKeySpec(key, "AES");
                 Cipher c1 = Cipher.getInstance("AES/CBC/PKCS5Padding");
-                c1.init(Cipher.DECRYPT_MODE, securekey, new IvParameterSpec(iv.getBytes(Charset.forName("UTF-8"))));
+                c1.init(Cipher.DECRYPT_MODE, securekey, new IvParameterSpec(iv));
                 byte[] data = new byte[length];
                 in.readBytes(data, 0, length);
                 byte[] raw = c1.doFinal(data);

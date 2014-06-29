@@ -44,6 +44,10 @@ public class ApnProxyConfig {
 
     private String trustStorePassword;
 
+    private byte[] key;
+
+    private byte[] iv;
+
     private int port;
 
     private int bossThreadCount;
@@ -107,6 +111,22 @@ public class ApnProxyConfig {
 
     final void setTrustStorePassword(String trustStorePassword) {
         this.trustStorePassword = trustStorePassword;
+    }
+
+    final public byte[] getKey() {
+        return key;
+    }
+
+    final public void setKey(byte[] key) {
+        this.key = key;
+    }
+
+    final public byte[] getIv() {
+        return iv;
+    }
+
+    final public void setIv(byte[] iv) {
+        this.iv = iv;
     }
 
     public final int getPort() {

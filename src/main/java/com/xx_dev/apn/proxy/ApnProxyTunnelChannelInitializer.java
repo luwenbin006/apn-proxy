@@ -17,6 +17,7 @@
 package com.xx_dev.apn.proxy;
 
 import com.xx_dev.apn.proxy.config.ApnProxyListenType;
+import com.xx_dev.apn.proxy.remotechooser.ApnProxyAESRemote;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -63,8 +64,11 @@ public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketC
 
             pipeline.addLast("ssl", new SslHandler(engine));
         } else if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.AES) {
-            pipeline.addLast("apnproxy.encrypt", new ApnProxyAESEncoder());
-            pipeline.addLast("apnproxy.decrypt", new ApnProxyAESDecoder());
+            byte[] key = ((ApnProxyAESRemote)apnProxyRemote).getKey();
+            byte[] iv = ((ApnProxyAESRemote)apnProxyRemote).getIv();
+
+            pipeline.addLast("apnproxy.encrypt", new ApnProxyAESEncoder(key, iv));
+            pipeline.addLast("apnproxy.decrypt", new ApnProxyAESDecoder(key, iv));
         }
 
         if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.PLAIN) {

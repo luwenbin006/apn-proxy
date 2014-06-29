@@ -34,16 +34,20 @@ public class ApnProxyAESEncoder extends MessageToByteEncoder<ByteBuf> {
 
     private static final Logger logger = Logger.getLogger(ApnProxyAESEncoder.class);
 
-    private String key = "1234567812345678";
-    private String iv = "abcdefghabcdefgh";
+    private byte[] key;
+    private byte[] iv;
 
+    public ApnProxyAESEncoder(byte[] key, byte[] iv) {
+        this.key = key;
+        this.iv = iv;
+    }
 
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) throws Exception {
         try {
-            Key securekey = new SecretKeySpec(key.getBytes(Charset.forName("UTF-8")), "AES");
+            Key securekey = new SecretKeySpec(key, "AES");
             Cipher c1 = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            c1.init(Cipher.ENCRYPT_MODE, securekey, new IvParameterSpec(iv.getBytes(Charset.forName("UTF-8"))));
+            c1.init(Cipher.ENCRYPT_MODE, securekey, new IvParameterSpec(iv));
             byte[] array = new byte[msg.readableBytes()];
             msg.readBytes(array);
             byte[] raw = c1.doFinal(array);
