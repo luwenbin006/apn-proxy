@@ -20,7 +20,7 @@ package com.xx_dev.apn.proxy.remotechooser;
  * @author xmx
  * @version $Id: com.xx_dev.apn.proxy.remotechooser.ApnProxyAESRemote 2014-06-29 11:04 (xmx) Exp $
  */
-public class ApnProxyAESRemote extends ApnProxyRemote{
+public class ApnProxyAESRemote extends ApnProxyRemote {
 
     private byte[] key;
 

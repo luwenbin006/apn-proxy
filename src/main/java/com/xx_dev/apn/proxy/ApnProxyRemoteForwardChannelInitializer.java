@@ -68,9 +68,9 @@ public class ApnProxyRemoteForwardChannelInitializer extends ChannelInitializer<
             engine.setUseClientMode(true);
 
             pipeline.addLast("ssl", new SslHandler(engine));
-        } else if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.AES){
-            byte[] key = ((ApnProxyAESRemote)apnProxyRemote).getKey();
-            byte[] iv = ((ApnProxyAESRemote)apnProxyRemote).getIv();
+        } else if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.AES) {
+            byte[] key = ((ApnProxyAESRemote) apnProxyRemote).getKey();
+            byte[] iv = ((ApnProxyAESRemote) apnProxyRemote).getIv();
 
             pipeline.addLast("apnproxy.encrypt", new ApnProxyAESEncoder(key, iv));
             pipeline.addLast("apnproxy.decrypt", new ApnProxyAESDecoder(key, iv));

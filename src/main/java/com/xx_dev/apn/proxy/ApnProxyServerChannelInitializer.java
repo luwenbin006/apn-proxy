@@ -48,7 +48,7 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
         if (ApnProxyConfig.getConfig().getListenType() == ApnProxyListenType.SSL) {
             SSLEngine engine = ApnProxySSLContextFactory.createServerSSLSSLEngine();
             pipeline.addLast("apnproxy.encrypt", new SslHandler(engine));
-        } else  if (ApnProxyConfig.getConfig().getListenType() == ApnProxyListenType.AES) {
+        } else if (ApnProxyConfig.getConfig().getListenType() == ApnProxyListenType.AES) {
             byte[] key = ApnProxyConfig.getConfig().getKey();
             byte[] iv = ApnProxyConfig.getConfig().getIv();
             pipeline.addLast("apnproxy.encrypt", new ApnProxyAESEncoder(key, iv));

@@ -52,8 +52,8 @@ public class ApnProxyRemoteChooser {
                 apAESRemote.setAppleyRemoteRule(true);
                 apAESRemote.setRemoteListenType(ApnProxyListenType.AES);
 
-                byte[] key = ((ApnProxyAESRemoteRule)remoteRule).getKey();
-                byte[] iv = ((ApnProxyAESRemoteRule)remoteRule).getIv();
+                byte[] key = ((ApnProxyAESRemoteRule) remoteRule).getKey();
+                byte[] iv = ((ApnProxyAESRemoteRule) remoteRule).getIv();
 
                 apAESRemote.setKey(key);
                 apAESRemote.setIv(iv);

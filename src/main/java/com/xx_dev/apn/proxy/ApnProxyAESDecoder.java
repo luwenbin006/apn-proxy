@@ -22,7 +22,6 @@ import io.netty.handler.codec.ReplayingDecoder;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.Charset;
 import java.security.Key;
 import java.util.List;
 
@@ -30,7 +29,7 @@ import java.util.List;
  * @author xmx
  * @version $Id: com.xx_dev.apn.proxy.ApnProxyAESDecoder 14-6-28 12:09 (xmx) Exp $
  */
-public class ApnProxyAESDecoder extends ReplayingDecoder<ApnProxyAESDecoder.STATE>{
+public class ApnProxyAESDecoder extends ReplayingDecoder<ApnProxyAESDecoder.STATE> {
 
     enum STATE {
         READ_LENGTH,
@@ -51,7 +50,7 @@ public class ApnProxyAESDecoder extends ReplayingDecoder<ApnProxyAESDecoder.STAT
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         switch (this.state()) {
-            case READ_LENGTH : {
+            case READ_LENGTH: {
                 length = in.readInt();
                 this.checkpoint(STATE.READ_CONTENT);
             }
@@ -73,10 +72,7 @@ public class ApnProxyAESDecoder extends ReplayingDecoder<ApnProxyAESDecoder.STAT
         }
 
 
-
     }
-
-
 
 
 }

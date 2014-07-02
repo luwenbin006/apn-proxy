@@ -45,6 +45,6 @@ public class ApnProxyConnectionAttribute {
     }
 
     public String toString() {
-        return uaAddress + ", " + method + " " + url + " " + httpVersion + ", UA: " + ua +  ", REMOTE: " + remote;
+        return uaAddress + ", " + method + " " + url + " " + httpVersion + ", UA: " + ua + ", REMOTE: " + remote;
     }
 }

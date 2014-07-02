@@ -70,8 +70,8 @@ public class ApnProxyRemoteRulesConfigReader extends ApnProxyAbstractXmlConfigRe
                 }
                 String _remoteIV = remoteIVElements.get(0).getValue();
 
-                ((ApnProxyAESRemoteRule)apnProxyRemoteRule).setKey(_remoteKey.getBytes(Charset.forName("UTF-8")));
-                ((ApnProxyAESRemoteRule)apnProxyRemoteRule).setIv(_remoteIV.getBytes(Charset.forName("UTF-8")));
+                ((ApnProxyAESRemoteRule) apnProxyRemoteRule).setKey(_remoteKey.getBytes(Charset.forName("UTF-8")));
+                ((ApnProxyAESRemoteRule) apnProxyRemoteRule).setIv(_remoteIV.getBytes(Charset.forName("UTF-8")));
 
             } else {
                 apnProxyRemoteRule = new ApnProxyRemoteRule();
