@@ -57,7 +57,7 @@ public class ApnProxyAESEncoder extends MessageToByteEncoder<ByteBuf> {
         try {
 
             while(msg.readableBytes() > 0) {
-                c1.init(Cipher.DECRYPT_MODE, securekey, iv);
+                c1.init(Cipher.ENCRYPT_MODE, securekey, iv);
 
                 int readLength = msg.readableBytes();
                 if (readLength > 1000) {
