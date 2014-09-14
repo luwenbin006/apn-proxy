@@ -21,9 +21,11 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import org.apache.log4j.Logger;
 
 import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author xmx
@@ -33,26 +35,42 @@ public class ApnProxyAESEncoder extends MessageToByteEncoder<ByteBuf> {
 
     private static final Logger logger = Logger.getLogger(ApnProxyAESEncoder.class);
 
-    private byte[] key;
-    private byte[] iv;
+    Cipher c1;
+    Key securekey;
+    IvParameterSpec iv;
 
     public ApnProxyAESEncoder(byte[] key, byte[] iv) {
-        this.key = key;
-        this.iv = iv;
+        this.securekey = new SecretKeySpec(key, "AES");
+        try {
+            c1 = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        }
+
+        this.iv = new IvParameterSpec(iv);
     }
 
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) throws Exception {
         try {
-            Key securekey = new SecretKeySpec(key, "AES");
-            Cipher c1 = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            c1.init(Cipher.ENCRYPT_MODE, securekey, new IvParameterSpec(iv));
-            byte[] array = new byte[msg.readableBytes()];
-            msg.readBytes(array);
-            byte[] raw = c1.doFinal(array);
-            int length = raw.length;
-            out.writeInt(length);
-            out.writeBytes(raw);
+            do {
+                c1.init(Cipher.DECRYPT_MODE, securekey, iv);
+
+                ByteBuf buf = ctx.alloc().buffer();
+                msg.readBytes(buf, 1000);
+
+                byte[] array = buf.array();
+
+                byte[] raw = c1.doFinal(array);
+                int length = raw.length;
+                out.writeInt(0x34ed2b11);//magic number
+                out.writeInt(length);
+                out.writeBytes(raw);
+            } while(msg.readableBytes() > 0);
+
+
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

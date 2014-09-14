@@ -20,9 +20,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
 
 import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -32,32 +34,50 @@ import java.util.List;
 public class ApnProxyAESDecoder extends ReplayingDecoder<ApnProxyAESDecoder.STATE> {
 
     enum STATE {
+        READ_MAGIC_NUMBER,
         READ_LENGTH,
         READ_CONTENT
     }
 
     private int length;
 
-    private byte[] key;
-    private byte[] iv;
+    Cipher c1;
+    Key securekey;
+    IvParameterSpec iv;
 
     public ApnProxyAESDecoder(byte[] key, byte[] iv) {
-        super(STATE.READ_LENGTH);
-        this.key = key;
-        this.iv = iv;
+        super(STATE.READ_MAGIC_NUMBER);
+        this.securekey = new SecretKeySpec(key, "AES");
+        try {
+            c1 = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        }
+
+        this.iv = new IvParameterSpec(iv);
+
     }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         switch (this.state()) {
+            case READ_MAGIC_NUMBER: {
+                int magicNumber = in.readInt();
+                if (magicNumber != 0x34ed2b11) {
+                    ctx.close();
+                }
+            }
             case READ_LENGTH: {
                 length = in.readInt();
+                if (length > 3000) {
+                    ctx.close();
+                }
                 this.checkpoint(STATE.READ_CONTENT);
             }
             case READ_CONTENT: {
-                Key securekey = new SecretKeySpec(key, "AES");
-                Cipher c1 = Cipher.getInstance("AES/CBC/PKCS5Padding");
-                c1.init(Cipher.DECRYPT_MODE, securekey, new IvParameterSpec(iv));
+                c1.init(Cipher.DECRYPT_MODE, securekey, iv);
                 byte[] data = new byte[length];
                 in.readBytes(data, 0, length);
                 byte[] raw = c1.doFinal(data);
