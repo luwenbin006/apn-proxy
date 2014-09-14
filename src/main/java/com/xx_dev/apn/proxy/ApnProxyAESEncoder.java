@@ -60,8 +60,8 @@ public class ApnProxyAESEncoder extends MessageToByteEncoder<ByteBuf> {
                 c1.init(Cipher.ENCRYPT_MODE, securekey, iv);
 
                 int readLength = msg.readableBytes();
-                if (readLength > 1000) {
-                    readLength = 1000;
+                if (readLength > 1024*512) {
+                    readLength = 1024*512;
                 }
 
                 byte[] array = new byte[readLength];
@@ -69,6 +69,7 @@ public class ApnProxyAESEncoder extends MessageToByteEncoder<ByteBuf> {
 
                 byte[] raw = c1.doFinal(array);
                 int length = raw.length;
+
                 out.writeInt(0x34ed2b11);//magic number
                 out.writeInt(length);
                 out.writeBytes(raw);

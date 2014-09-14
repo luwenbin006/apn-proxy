@@ -72,7 +72,7 @@ public class ApnProxyAESDecoder extends ReplayingDecoder<ApnProxyAESDecoder.STAT
             }
             case READ_LENGTH: {
                 length = in.readInt();
-                if (length > 3000) {
+                if (length > 1024*512 + 1000) {
                     ctx.close();
                 }
                 this.checkpoint(STATE.READ_CONTENT);
