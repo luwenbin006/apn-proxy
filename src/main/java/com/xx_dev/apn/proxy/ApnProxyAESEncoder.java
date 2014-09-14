@@ -55,11 +55,11 @@ public class ApnProxyAESEncoder extends MessageToByteEncoder<ByteBuf> {
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) throws Exception {
         try {
-            do {
+            while(msg.readableBytes() > 0) {
                 c1.init(Cipher.DECRYPT_MODE, securekey, iv);
 
-                ByteBuf buf = ctx.alloc().buffer();
-                msg.readBytes(buf, 1000);
+                ByteBuf buf = ctx.alloc().buffer(1000);
+                msg.readBytes(buf, buf.capacity());
 
                 byte[] array = buf.array();
 
@@ -68,7 +68,7 @@ public class ApnProxyAESEncoder extends MessageToByteEncoder<ByteBuf> {
                 out.writeInt(0x34ed2b11);//magic number
                 out.writeInt(length);
                 out.writeBytes(raw);
-            } while(msg.readableBytes() > 0);
+            }
 
 
         } catch (Exception e) {

@@ -66,8 +66,9 @@ public class ApnProxyAESDecoder extends ReplayingDecoder<ApnProxyAESDecoder.STAT
             case READ_MAGIC_NUMBER: {
                 int magicNumber = in.readInt();
                 if (magicNumber != 0x34ed2b11) {
-                    ctx.close();
+                    throw new Exception("Wrong magic number!");
                 }
+                this.checkpoint(STATE.READ_LENGTH);
             }
             case READ_LENGTH: {
                 length = in.readInt();
@@ -84,7 +85,7 @@ public class ApnProxyAESDecoder extends ReplayingDecoder<ApnProxyAESDecoder.STAT
                 ByteBuf outBuf = ctx.alloc().buffer();
                 outBuf.writeBytes(raw);
                 out.add(outBuf);
-                this.checkpoint(STATE.READ_LENGTH);
+                this.checkpoint(STATE.READ_MAGIC_NUMBER);
                 break;
             }
             default:
