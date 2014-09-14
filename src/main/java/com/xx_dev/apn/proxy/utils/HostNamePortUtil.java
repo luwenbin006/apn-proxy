@@ -20,6 +20,10 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * @author xmx
@@ -27,24 +31,54 @@ import org.apache.commons.lang.StringUtils;
  */
 public class HostNamePortUtil {
 
+    private static final Logger logger = Logger.getLogger(HostNamePortUtil.class);
+
     public static String getHostName(HttpRequest httpRequest) {
         String originalHostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
-        String originalHost = StringUtils.split(originalHostHeader, ": ")[0];
+        if (StringUtils.isNotBlank(originalHostHeader)) {
+            String originalHost = StringUtils.split(originalHostHeader, ": ")[0];
+            return originalHost;
+        } else {
+            String uriStr = httpRequest.getUri();
+            try {
+                URI uri = new URI(uriStr);
 
-        return originalHost;
+                String originalHost = uri.getHost();
+
+                return originalHost;
+            } catch (URISyntaxException e) {
+                logger.error(e.getMessage(), e);
+                return null;
+            }
+        }
     }
 
     public static int getPort(HttpRequest httpRequest) {
-        String originalHostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
         int originalPort = 80;
 
         if (httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
             originalPort = 443;
         }
 
-        if (StringUtils.split(originalHostHeader, ": ").length == 2) {
-            originalPort = Integer.parseInt(StringUtils.split(originalHostHeader, ": ")[1]);
+        String originalHostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
+        if (StringUtils.isNotBlank(originalHostHeader)) {
+            if (StringUtils.split(originalHostHeader, ": ").length == 2) {
+                originalPort = Integer.parseInt(StringUtils.split(originalHostHeader, ": ")[1]);
+            }
+        } else {
+            String uriStr = httpRequest.getUri();
+            try {
+                URI uri = new URI(uriStr);
+
+                if (uri.getPort() > 0) {
+                    originalPort = uri.getPort();
+                }
+            } catch (URISyntaxException e) {
+                logger.error(e.getMessage(), e);
+                originalPort = -1;
+            }
         }
+
 
         return originalPort;
     }
