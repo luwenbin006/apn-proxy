@@ -35,6 +35,11 @@ public class HostNamePortUtil {
 
     public static String getHostName(HttpRequest httpRequest) {
         String originalHostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
+
+        if (StringUtils.isBlank(originalHostHeader) && httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
+            originalHostHeader = httpRequest.getUri();
+        }
+
         if (StringUtils.isNotBlank(originalHostHeader)) {
             String originalHost = StringUtils.split(originalHostHeader, ": ")[0];
             return originalHost;
@@ -42,6 +47,8 @@ public class HostNamePortUtil {
             String uriStr = httpRequest.getUri();
             try {
                 URI uri = new URI(uriStr);
+
+                String schema = uri.getScheme();
 
                 String originalHost = uri.getHost();
 
@@ -61,6 +68,11 @@ public class HostNamePortUtil {
         }
 
         String originalHostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
+
+        if (StringUtils.isBlank(originalHostHeader) && httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
+            originalHostHeader = httpRequest.getUri();
+        }
+
         if (StringUtils.isNotBlank(originalHostHeader)) {
             if (StringUtils.split(originalHostHeader, ": ").length == 2) {
                 originalPort = Integer.parseInt(StringUtils.split(originalHostHeader, ": ")[1]);
@@ -68,12 +80,12 @@ public class HostNamePortUtil {
         } else {
             String uriStr = httpRequest.getUri();
             try {
-                URI uri = new URI(uriStr);
+                URI uri = URI.create(uriStr);
 
                 if (uri.getPort() > 0) {
                     originalPort = uri.getPort();
                 }
-            } catch (URISyntaxException e) {
+            } catch (IllegalArgumentException e) {
                 logger.error(e.getMessage(), e);
                 originalPort = -1;
             }
